@@ -1,0 +1,2 @@
+rootProject.name='ElC Application'
+include ':app'
