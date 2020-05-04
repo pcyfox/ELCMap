@@ -87,7 +87,7 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
     public boolean dispatchTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                touchedLine = markView.findLine(event.getRawX(), event.getRawY());
+                touchedLine = markView.findLineByEndPoint(event.getRawX(), event.getRawY());
                 if (touchedLine != null) {
                     isIntercept = true;
                     headAnchor = findAnchor(touchedLine.getStartX(), touchedLine.getStartY());
@@ -132,7 +132,7 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
                     markView.setCanStartToDraw(false);
                     markView.dispatchTouchEvent(event);
                 } else {
-                    headAnchor.setNext(nextAnchor);
+                    headAnchor.addNextAnchor(nextAnchor);
                     markView.setCanStartToDraw(true);
                     Log.d(TAG, "onTouchEvent() nextAnchor = [" + nextAnchor + "]");
                     event.setLocation(nextAnchor.getCentreX(), nextAnchor.getCentreY());

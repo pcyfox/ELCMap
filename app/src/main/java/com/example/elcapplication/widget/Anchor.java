@@ -1,7 +1,6 @@
 package com.example.elcapplication.widget;
 
 import android.content.Context;
-import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -12,13 +11,16 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Anchor extends FrameLayout {
     private static final String TAG = "Anchor";
     private float centreX;
     private float centreY;
     private int touchRadius;
     private String name;
-    private Anchor next;
+    private List<Anchor> nextAnchors;
     private int parentId = 0;
     private String parentName;
     private View realAnchorView;
@@ -85,12 +87,19 @@ public class Anchor extends FrameLayout {
         return touchRadius;
     }
 
-    public Anchor getNext() {
-        return next;
+    public List<Anchor> getNextAnchors() {
+        return nextAnchors;
     }
 
-    public void setNext(Anchor next) {
-        this.next = next;
+    public void setNextAnchors(List<Anchor> nextAnchors) {
+        this.nextAnchors = nextAnchors;
+    }
+
+    public void addNextAnchor(Anchor anchor) {
+        if (nextAnchors == null) {
+            nextAnchors = new ArrayList<>();
+        }
+        nextAnchors.add(anchor);
     }
 
     public String getName() {
@@ -127,7 +136,7 @@ public class Anchor extends FrameLayout {
             ", centreY=" + centreY +
             ", touchRadius=" + touchRadius +
             ", name='" + name + '\'' +
-            ", next=" + next +
+            ", next=" + nextAnchors +
             ", parentId=" + parentId +
             ", parentName='" + parentName + '\'' +
             '}';

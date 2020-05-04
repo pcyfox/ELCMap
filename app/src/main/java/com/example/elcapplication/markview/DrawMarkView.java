@@ -10,6 +10,7 @@ import android.graphics.Rect;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -31,7 +32,7 @@ public class DrawMarkView extends View {
     private boolean isCanStartToDraw = false;
     private static final String TAG = "DrawMarkView";
     private DragEventInterceptor dragEventInterceptor;
-    private List<MarkLine> dragLines;
+    private List<Pair<MarkLine, Integer>> dragLines;
 
     //用于记录与恢复
     private float selectedLineEndX;
@@ -110,10 +111,29 @@ public class DrawMarkView extends View {
     }
 
 
-    public void addDragLine(MarkLine line) {
+    private void addDragLine(Pair<MarkLine, Integer> line) {
         if (markLines.contains(line)) {
             dragLines.add(line);
         }
+    }
+
+    private void addDragLine(float x, float y) {
+
+    }
+
+
+    public void dragLines(float dx, float dy) {
+        for (Pair<MarkLine, Integer> markLinePair : dragLines) {
+            MarkLine line = markLinePair.first;
+            if (markLinePair.second == 0) {//拖动头部
+                line.setStartX(line.getStartY() + dx);
+                line.setStartX(line.getStartY() + dy);
+            } else {//拖动尾部
+                line.setEndX(line.getEndX() + dx);
+                line.setEndY(line.getEndY() + dy);
+            }
+        }
+        invalidate();
     }
 
     /**
@@ -123,29 +143,45 @@ public class DrawMarkView extends View {
      * @param y
      */
     private void touchDown(float x, float y) {
-        if (findLine(x, y) == null) {
-            selectedLine = null;
+        selectedLine = findLineByEndPoint(x, y);
+        if (selectedLine == null) {
             mPath.reset();
             mPath.moveTo(x, y);
             mX = x;
             mY = y;
             startX = x;
             startY = y;
+        } else {
+            selectedLineEndX = selectedLine.getEndX();
+            selectedLineEndY = selectedLine.getEndY();
+            postDelayed(runnable, ViewConfiguration.getLongPressTimeout());
         }
     }
 
-    public MarkLine findLine(float x, float y) {
+    public MarkLine findLineByEndPoint(float x, float y) {
         for (MarkLine line : markLines) {
             int offset = 100;
             if (Math.abs(line.getEndX() - x) < offset && Math.abs(line.getEndY() - y) < offset) {
-                selectedLine = line;
-                selectedLineEndX = selectedLine.getEndX();
-                selectedLineEndY = selectedLine.getEndY();
-                postDelayed(runnable, ViewConfiguration.getLongPressTimeout());
                 return line;
             }
         }
         return null;
+    }
+
+
+    public List<Pair<MarkLine, Integer>> findLine(float x, float y) {
+        List<Pair<MarkLine, Integer>> pairList = new ArrayList<>();
+        for (MarkLine line : markLines) {
+            int offset = 100;
+            if (Math.abs(line.getStartX() - x) < offset && Math.abs(line.getStartY() - y) < offset) {
+                pairList.add(new Pair<>(line, 0));
+            }
+            if (Math.abs(line.getEndX() - x) < offset && Math.abs(line.getEndY() - y) < offset) {
+                postDelayed(runnable, ViewConfiguration.getLongPressTimeout());
+                pairList.add(new Pair<>(line, 1));
+            }
+        }
+        return pairList;
     }
 
 
@@ -167,9 +203,9 @@ public class DrawMarkView extends View {
                 mY = y;
             }
         } else {
-            removeCallbacks(runnable);
-            selectedLine.setEndX(x);
-            selectedLine.setEndY(y);
+//            removeCallbacks(runnable);
+//            selectedLine.setEndX(x);
+//            selectedLine.setEndY(y);
         }
 
     }
@@ -200,18 +236,17 @@ public class DrawMarkView extends View {
                 }
             }
             mPath.reset();
+            return;
+        }
+
+        if (dragEventInterceptor != null && dragEventInterceptor.intercept(endX, endY)) {
+            removeCallbacks(runnable);
+            selectedLine.setEndX(selectedLineEndX);
+            selectedLine.setEndY(selectedLineEndY);
         } else {
-            if (dragEventInterceptor != null && dragEventInterceptor.intercept(endX, endY)) {
-                removeCallbacks(runnable);
-                selectedLine.setEndX(selectedLineEndX);
-                selectedLine.setEndY(selectedLineEndY);
-            } else {
-                removeCallbacks(runnable);
-                selectedLine.setEndX(endX);
-                selectedLine.setEndY(endY);
-
-            }
-
+            removeCallbacks(runnable);
+            selectedLine.setEndX(endX);
+            selectedLine.setEndY(endY);
         }
     }
 
@@ -219,7 +254,6 @@ public class DrawMarkView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawPath(mPath, dashPaint);
-
         for (MarkLine line : markLines) {
             float startX = line.getStartX();
             float startY = line.getStartY();
