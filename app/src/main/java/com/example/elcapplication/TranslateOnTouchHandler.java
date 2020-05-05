@@ -20,6 +20,7 @@ public class TranslateOnTouchHandler {
                 float newY = event.getRawY();
                 float dX = newX - rawX;
                 float dY = newY - rawY;
+                onTranslate(dX, dY);
                 //移动的时候原控件的坐标
                 int l = view.getLeft();
                 int t = view.getTop();
@@ -34,7 +35,9 @@ public class TranslateOnTouchHandler {
                 rawY = newY;
                 break;
         }
-
         return true;
+    }
+
+    public void onTranslate(float dx, float dy) {
     }
 }

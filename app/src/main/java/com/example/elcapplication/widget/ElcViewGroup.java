@@ -16,8 +16,9 @@ import java.util.List;
 public class ElcViewGroup extends FrameLayout {
     private static final String TAG = "ElcViewGroup";
     private TranslateOnTouchHandler translateOnTouchHandler;
-    private List<Anchor> anchors;
+    private List<Anchor> anchors = new ArrayList<>();
     private String name;
+    private OnTranslateListener onTranslateListener;
 
     public List<Anchor> getAnchors() {
         return anchors;
@@ -36,10 +37,21 @@ public class ElcViewGroup extends FrameLayout {
     }
 
     {
-        anchors = new ArrayList<>();
-        translateOnTouchHandler = new TranslateOnTouchHandler();
+
+        translateOnTouchHandler = new TranslateOnTouchHandler() {
+            @Override
+            public void onTranslate(float dx, float dy) {
+                super.onTranslate(dx, dy);
+                if (onTranslateListener != null) {
+                    onTranslateListener.onTranslate(dx, dy);
+                }
+            }
+        };
     }
 
+    public void setOnTranslateListener(OnTranslateListener onTranslateListener) {
+        this.onTranslateListener = onTranslateListener;
+    }
 
     public void setAnchors(List<Anchor> anchors) {
         this.anchors = anchors;
@@ -67,12 +79,6 @@ public class ElcViewGroup extends FrameLayout {
         return translateOnTouchHandler.translateOnTouch(this, event);
     }
 
-
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-    }
-
     private String string = "ElcViewGroup{" +
             ", name='" + name + '\'' +
             "anchors=" + anchors +
@@ -81,5 +87,9 @@ public class ElcViewGroup extends FrameLayout {
     @Override
     public String toString() {
         return string;
+    }
+
+    public interface OnTranslateListener {
+        void onTranslate(float dx, float dy);
     }
 }

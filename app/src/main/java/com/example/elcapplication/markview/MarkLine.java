@@ -1,9 +1,11 @@
 package com.example.elcapplication.markview;
 
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 
 public class MarkLine {
-
+    private static final String TAG = "MarkLine";
     private float startX, startY, endX, endY;
     private String text;
 
@@ -44,6 +46,7 @@ public class MarkLine {
     }
 
     public void setEndX(float endX) {
+        Log.d(TAG, "setEndX() called with: endX = [" + endX + "]");
         this.endX = endX;
     }
 
@@ -63,7 +66,6 @@ public class MarkLine {
         if (obj == null) {
             return false;
         }
-
         if (obj instanceof MarkLine) {
             MarkLine input = (MarkLine) obj;
             return input.startX == startX && input.startY == startY && input.endX == endX && endY == input.endY;

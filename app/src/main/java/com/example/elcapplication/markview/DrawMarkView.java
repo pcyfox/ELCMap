@@ -16,7 +16,9 @@ import android.view.View;
 import android.view.ViewConfiguration;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class DrawMarkView extends View {
     private List<MarkLine> markLines = new ArrayList<>();
@@ -32,7 +34,7 @@ public class DrawMarkView extends View {
     private boolean isCanStartToDraw = false;
     private static final String TAG = "DrawMarkView";
     private DragEventInterceptor dragEventInterceptor;
-    private List<Pair<MarkLine, Integer>> dragLines;
+    private Set<Pair<MarkLine, Integer>> dragLines;
 
     //用于记录与恢复
     private float selectedLineEndX;
@@ -86,7 +88,7 @@ public class DrawMarkView extends View {
         textPaint.setTextAlign(Paint.Align.CENTER);
         //路径
         mPath = new Path();
-        dragLines = new ArrayList<>();
+        dragLines = new HashSet<>();
     }
 
     @Override
@@ -112,22 +114,27 @@ public class DrawMarkView extends View {
 
 
     private void addDragLine(Pair<MarkLine, Integer> line) {
-        if (markLines.contains(line)) {
-            dragLines.add(line);
+        dragLines.add(line);
+    }
+
+    public void addDragLine(float x, float y) {
+        Set<Pair<MarkLine, Integer>> lines = findLine(x, y);
+        for (Pair<MarkLine, Integer> lineIntegerPair : lines) {
+            addDragLine(lineIntegerPair);
         }
     }
 
-    private void addDragLine(float x, float y) {
-
+    public void clearDragLines() {
+        dragLines.clear();
     }
 
-
     public void dragLines(float dx, float dy) {
+        Log.d(TAG, "dragLines() called with: dx = [" + dx + "], dy = [" + dy + "]");
         for (Pair<MarkLine, Integer> markLinePair : dragLines) {
             MarkLine line = markLinePair.first;
             if (markLinePair.second == 0) {//拖动头部
-                line.setStartX(line.getStartY() + dx);
-                line.setStartX(line.getStartY() + dy);
+                line.setStartX(line.getStartX() + dx);
+                line.setStartY(line.getStartY() + dy);
             } else {//拖动尾部
                 line.setEndX(line.getEndX() + dx);
                 line.setEndY(line.getEndY() + dy);
@@ -143,7 +150,7 @@ public class DrawMarkView extends View {
      * @param y
      */
     private void touchDown(float x, float y) {
-        selectedLine = findLineByEndPoint(x, y);
+        // selectedLine = findLineByEndPoint(x, y);
         if (selectedLine == null) {
             mPath.reset();
             mPath.moveTo(x, y);
@@ -169,8 +176,8 @@ public class DrawMarkView extends View {
     }
 
 
-    public List<Pair<MarkLine, Integer>> findLine(float x, float y) {
-        List<Pair<MarkLine, Integer>> pairList = new ArrayList<>();
+    public Set<Pair<MarkLine, Integer>> findLine(float x, float y) {
+        Set<Pair<MarkLine, Integer>> pairList = new HashSet<>();
         for (MarkLine line : markLines) {
             int offset = 100;
             if (Math.abs(line.getStartX() - x) < offset && Math.abs(line.getStartY() - y) < offset) {
@@ -254,18 +261,29 @@ public class DrawMarkView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawPath(mPath, dashPaint);
-        for (MarkLine line : markLines) {
-            float startX = line.getStartX();
-            float startY = line.getStartY();
-            float endX = line.getEndX();
-            float endY = line.getEndY();
-            canvas.drawLine(startX, startY, endX, endY, mLinePaint);
-            canvas.drawCircle(startX, startY, 10.0f, mLinePaint);
-            canvas.drawCircle(endX, endY, 10.0f, mLinePaint);
+        if (dragLines != null && dragLines.size() > 0) {
+            for (Pair<MarkLine, Integer> pair : dragLines) {
+                MarkLine line = pair.first;
+                drawLine(canvas, line);
+            }
+        } else {
+            for (MarkLine line : markLines) {
+                drawLine(canvas, line);
+            }
         }
         if (mCanvas == null) {
             mCanvas = canvas;
         }
+    }
+
+    private void drawLine(Canvas canvas, MarkLine line) {
+        float startX = line.getStartX();
+        float startY = line.getStartY();
+        float endX = line.getEndX();
+        float endY = line.getEndY();
+        canvas.drawLine(startX, startY, endX, endY, mLinePaint);
+        canvas.drawCircle(startX, startY, 10.0f, mLinePaint);
+        canvas.drawCircle(endX, endY, 10.0f, mLinePaint);
     }
 
 

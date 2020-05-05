@@ -54,6 +54,7 @@ public class Anchor extends FrameLayout {
 
 
     private void init() {
+        nextAnchors = new ArrayList<>();
         if (realAnchorView == null) {
             if (getChildCount() == 0) {
                 return;
@@ -96,9 +97,6 @@ public class Anchor extends FrameLayout {
     }
 
     public void addNextAnchor(Anchor anchor) {
-        if (nextAnchors == null) {
-            nextAnchors = new ArrayList<>();
-        }
         nextAnchors.add(anchor);
     }
 
