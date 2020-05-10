@@ -9,12 +9,31 @@ public class MarkLine {
     private float startX, startY, endX, endY;
     private String text;
 
+    private float currentDrawTextX;
+    private float currentDrawTextY;
+
     public MarkLine(float startX, float startY, float endX, float endY, String text) {
         this.startX = startX;
         this.startY = startY;
         this.endX = endX;
         this.endY = endY;
         this.text = text;
+    }
+
+    public float getCurrentDrawTextX() {
+        return currentDrawTextX;
+    }
+
+    public void setCurrentDrawTextX(float currentDrawTextX) {
+        this.currentDrawTextX = currentDrawTextX;
+    }
+
+    public float getCurrentDrawTextY() {
+        return currentDrawTextY;
+    }
+
+    public void setCurrentDrawTextY(float currentDrawTextY) {
+        this.currentDrawTextY = currentDrawTextY;
     }
 
     public String getText() {

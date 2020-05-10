@@ -13,10 +13,12 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
+
+import com.example.elcapplication.uitls.Utils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -27,14 +29,12 @@ public class DrawMarkView extends View {
     private float mX, mY;
     private static final float TOUCH_TOLERANCE = 4;
     private float startX, startY;
-    private Canvas mCanvas;
     private MarkLine selectedLine;
-    private OnMarkInfoCallback callback;
-    private Runnable runnable;
     private boolean isCanStartToDraw = false;
     private static final String TAG = "DrawMarkView";
     private DragEventInterceptor dragEventInterceptor;
     private Set<Pair<MarkLine, Integer>> dragLines;
+
 
     //用于记录与恢复
     private float selectedLineEndX;
@@ -53,16 +53,6 @@ public class DrawMarkView extends View {
     }
 
     {
-        runnable = new Runnable() {
-            @Override
-            public void run() {
-                //执行长按点击事件的逻辑代码
-                if (callback != null && selectedLine != null) {
-                    callback.onEditText(selectedLine.getText());
-                }
-            }
-        };
-
 
         //线的Paint
         mLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -76,13 +66,12 @@ public class DrawMarkView extends View {
         dashPaint.setStrokeWidth(3);
         dashPaint.setPathEffect(new DashPathEffect(new float[]{25, 5}, 0));
 
-
         textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         textPaint.setAntiAlias(true);
         textPaint.setStyle(Paint.Style.STROKE);
         textPaint.setStrokeWidth(5);
-        textPaint.setColor(Color.BLUE);
-        textPaint.setTextSize(50);
+        textPaint.setColor(Color.RED);
+        textPaint.setTextSize(Utils.dip2px(getContext(), 14));
         textPaint.setStyle(Paint.Style.FILL);
         //该方法即为设置基线上那个点到底是left,center,还是right  这里我设置为center
         textPaint.setTextAlign(Paint.Align.CENTER);
@@ -118,7 +107,7 @@ public class DrawMarkView extends View {
     }
 
     public void addDragLine(float x, float y) {
-        Set<Pair<MarkLine, Integer>> lines = findLine(x, y);
+        Set<Pair<MarkLine, Integer>> lines = findDragLine(x, y);
         for (Pair<MarkLine, Integer> lineIntegerPair : lines) {
             addDragLine(lineIntegerPair);
         }
@@ -143,27 +132,6 @@ public class DrawMarkView extends View {
         invalidate();
     }
 
-    /**
-     * 手指按下时
-     *
-     * @param x
-     * @param y
-     */
-    private void touchDown(float x, float y) {
-        // selectedLine = findLineByEndPoint(x, y);
-        if (selectedLine == null) {
-            mPath.reset();
-            mPath.moveTo(x, y);
-            mX = x;
-            mY = y;
-            startX = x;
-            startY = y;
-        } else {
-            selectedLineEndX = selectedLine.getEndX();
-            selectedLineEndY = selectedLine.getEndY();
-            postDelayed(runnable, ViewConfiguration.getLongPressTimeout());
-        }
-    }
 
     public MarkLine findLineByEndPoint(float x, float y) {
         for (MarkLine line : markLines) {
@@ -176,7 +144,7 @@ public class DrawMarkView extends View {
     }
 
 
-    public Set<Pair<MarkLine, Integer>> findLine(float x, float y) {
+    public Set<Pair<MarkLine, Integer>> findDragLine(float x, float y) {
         Set<Pair<MarkLine, Integer>> pairList = new HashSet<>();
         for (MarkLine line : markLines) {
             int offset = 100;
@@ -184,13 +152,38 @@ public class DrawMarkView extends View {
                 pairList.add(new Pair<>(line, 0));
             }
             if (Math.abs(line.getEndX() - x) < offset && Math.abs(line.getEndY() - y) < offset) {
-                postDelayed(runnable, ViewConfiguration.getLongPressTimeout());
                 pairList.add(new Pair<>(line, 1));
             }
         }
         return pairList;
     }
 
+    /**
+     * 手指按下时
+     *
+     * @param x
+     * @param y
+     */
+    private void touchDown(float x, float y) {
+        // selectedLine = findLineByEndPoint(x, y);
+        startX = x;
+        startY = y;
+        selectedLine = findTouchedLine(x, y);
+        deleteTouchLine(x, y);
+
+        if (selectedLine == null) {
+            mPath.reset();
+            mPath.moveTo(x, y);
+            mX = x;
+            mY = y;
+            startX = x;
+            startY = y;
+        } else {
+//            selectedLineEndX = selectedLine.getEndX();
+//            selectedLineEndY = selectedLine.getEndY();
+//            postDelayed(runnable, ViewConfiguration.getLongPressTimeout());
+        }
+    }
 
     /**
      * 手指移动时
@@ -227,6 +220,7 @@ public class DrawMarkView extends View {
             if (Math.abs(startX - endX) > 100 || Math.abs(startY - endY) > 100) {
                 if (isCanStartToDraw) {
                     MarkLine line = new MarkLine(startX, startY, endX, endY, "");
+                    line.setText("X");
                     //去重
                     if (markLines.size() == 0) {
                         markLines.add(line);
@@ -246,15 +240,15 @@ public class DrawMarkView extends View {
             return;
         }
 
-        if (dragEventInterceptor != null && dragEventInterceptor.intercept(endX, endY)) {
-            removeCallbacks(runnable);
-            selectedLine.setEndX(selectedLineEndX);
-            selectedLine.setEndY(selectedLineEndY);
-        } else {
-            removeCallbacks(runnable);
-            selectedLine.setEndX(endX);
-            selectedLine.setEndY(endY);
-        }
+//        if (dragEventInterceptor != null && dragEventInterceptor.intercept(endX, endY)) {
+//            removeCallbacks(runnable);
+//            selectedLine.setEndX(selectedLineEndX);
+//            selectedLine.setEndY(selectedLineEndY);
+//        } else {
+//            removeCallbacks(runnable);
+//            selectedLine.setEndX(endX);
+//            selectedLine.setEndY(endY);
+//        }
     }
 
 
@@ -271,8 +265,10 @@ public class DrawMarkView extends View {
                 drawLine(canvas, line);
             }
         }
-        if (mCanvas == null) {
-            mCanvas = canvas;
+
+
+        if (selectedLine != null) {
+            drawLineText(selectedLine, canvas);
         }
     }
 
@@ -286,30 +282,64 @@ public class DrawMarkView extends View {
         canvas.drawCircle(endX, endY, 10.0f, mLinePaint);
     }
 
+    private Boolean deleteLine(MarkLine line) {
+        Iterator iterator = markLines.iterator();
+        while (iterator.hasNext()) {
+            if (iterator.next() == line) {
+                iterator.remove();
+                line = null;
+                return true;
+            }
+        }
+        return false;
+    }
 
-    public void addText(float startX, float startY, float endX, float endY, String text, Canvas canvas) {
+
+    private void drawLineText(float startX, float startY, float endX, float endY, String text, Canvas canvas) {
+        Log.d(TAG, "drawText() called with: startX = [" + startX + "], startY = [" + startY + "], endX = [" + endX + "], endY = [" + endY + "], text = [" + text + "], canvas = [" + canvas + "]");
         if (!TextUtils.isEmpty(text)) {
             Rect rect = new Rect();
             textPaint.getTextBounds(text, 0, text.length(), rect);
-            int w = rect.width() + 30;
-            int h = rect.height() + 30;
-            float tempX = 0;
-            float tempY = 0;
-            if (Math.abs(startX - endX) > Math.abs(startY - endY)) {
-                if (startX > endX) {
-                    tempX = -w >> 1;
-                } else {
-                    tempX = w >> 1;
-                }
-            } else {
-                if (startY > endY) {
-                    tempY = -30;
-                } else {
-                    tempY = h;
-                }
+            int w = rect.width();
+            float centerX = (endX + startX) / 2 + w;
+            float centerY = (endY + startY) / 2;
+
+            canvas.drawText(text, centerX, centerY, textPaint);
+        }
+    }
+
+
+    private void deleteTouchLine(float x, float y) {
+        float p = 20;
+        if (selectedLine == null) {
+            return;
+        }
+        float tx = selectedLine.getCurrentDrawTextX();
+        float ty = selectedLine.getCurrentDrawTextY();
+        if ((x < tx + 2*p && x > tx - p) && (y < ty + 2*p && y > ty - 2*p)) {
+            if (deleteLine(selectedLine)) {
+                selectedLine = null;
+                invalidate();
+                //TODO :----
             }
-            float centerX = endX + tempX;
-            float centerY = endY + tempY;
+        }
+    }
+
+    private void drawLineText(MarkLine line, Canvas canvas) {
+        String text = line.getText();
+        float startX = line.getStartX();
+        float startY = line.getStartY();
+        float endX = line.getEndX();
+        float endY = line.getEndY();
+
+        if (!TextUtils.isEmpty(text)) {
+            Rect rect = new Rect();
+            textPaint.getTextBounds(text, 0, text.length(), rect);
+            int w = rect.width();
+            float centerX = (endX + startX) / 2 + w;
+            float centerY = (endY + startY) / 2;
+            line.setCurrentDrawTextX(centerX);
+            line.setCurrentDrawTextY(centerY);
             canvas.drawText(text, centerX, centerY, textPaint);
         }
     }
@@ -351,11 +381,18 @@ public class DrawMarkView extends View {
         }
     }
 
+    public MarkLine findTouchedLine(float x, float y) {
+        Log.d(TAG, "findTouchedLine() called with: x = [" + x + "], y = [" + y + "]");
+        float padding = 200f;
+        for (MarkLine line : markLines) {
+            if (y < line.getEndY() && y > line.getStartY() &&
+                    ((x < line.getStartX() + padding && x > line.getStartX() - padding) || (x < line.getEndX() + padding && x > line.getEndX() - padding))) {
+                Log.d(TAG, "findTouchedLine() called with: line = [" + line + "]");
+                return line;
+            }
 
-    public interface OnMarkInfoCallback {
-        void onEditText(String preText);
-
-        void onSaveFinish(String path);
+        }
+        return null;
     }
 
     public boolean isCanStartToDraw() {

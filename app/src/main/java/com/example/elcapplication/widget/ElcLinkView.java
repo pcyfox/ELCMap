@@ -127,6 +127,7 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
             case MotionEvent.ACTION_UP:
                 if (headAnchor == null) {
                     markView.setCanStartToDraw(false);
+                    markView.dispatchTouchEvent(event);
                     isIntercept = false;
                     return true;
                 }
@@ -161,6 +162,7 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
 
     private Anchor findAnchor(float x, float y) {
         currentElcViewGroup = findElcViewGroup(x, y);
+        Log.d(TAG, "findElcViewGroup() currentElcViewGroup: x = [" + currentElcViewGroup + "]");
         if (currentElcViewGroup != null) {
             List<Anchor> anchors = currentElcViewGroup.getAnchors();
             for (Anchor anchor : anchors) {

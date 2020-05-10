@@ -37,6 +37,4 @@ public class Switch extends ElcViewGroup {
         rightAnchor.setName(rightAnchor.getTag()+"");
         addAnchor(leftAnchor, rightAnchor);
     }
-
-
 }
