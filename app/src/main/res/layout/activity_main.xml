@@ -10,9 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
-        android:background="@drawable/elc_shape_evg_bg"
         android:tag="1">
-
 
     </com.example.elcapplication.elcview.Switch>
 
@@ -20,7 +18,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:background="@drawable/elc_shape_evg_bg"
         android:tag="2" />
 
     <com.example.elcapplication.elcview.Switch
@@ -28,7 +25,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
         android:layout_marginTop="400dp"
-        android:background="@drawable/elc_shape_evg_bg"
         android:tag="3" />
 
 </com.example.elcapplication.widget.ElcLinkView>

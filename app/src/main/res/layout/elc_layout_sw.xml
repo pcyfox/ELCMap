@@ -15,7 +15,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/em_ic_s"
+        app:srcCompat="@drawable/elc_ic_s"
         tools:ignore="VectorDrawableCompat" />
 
 
@@ -31,7 +31,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/em_shape_black_point" />
+            android:src="@drawable/elc_shape_black_point" />
 
     </com.example.elcapplication.widget.Anchor>
 
@@ -48,7 +48,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/em_shape_black_point" />
+            android:src="@drawable/elc_shape_black_point" />
 
     </com.example.elcapplication.widget.Anchor>
 

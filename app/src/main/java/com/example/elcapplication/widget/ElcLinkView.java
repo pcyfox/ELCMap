@@ -10,6 +10,7 @@ import android.widget.RelativeLayout;
 
 import com.example.elcapplication.markview.DrawMarkView;
 import com.example.elcapplication.markview.MarkLine;
+import com.example.elcapplication.uitls.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +85,7 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-        int  action = event.getAction();
+        int action = event.getAction();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 touchedLine = markView.findLineByEndPoint(event.getRawX(), event.getRawY());
@@ -113,6 +114,7 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
                                 markView.dragLines(dx, dy);
                             }
                         });
+                        currentElcViewGroup.dispatchTouchEvent(event);
                     }
                     markView.setCanStartToDraw(false);
                 }
@@ -120,15 +122,20 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
                 break;
 
             case MotionEvent.ACTION_MOVE:
+                isIntercept = headAnchor != null;
                 if (touchedLine != null || headAnchor != null) {
                     markView.dispatchTouchEvent(event);
                 }
                 break;
             case MotionEvent.ACTION_UP:
+                if (currentElcViewGroup != null && headAnchor == null) {
+                    isIntercept = false;
+                    currentElcViewGroup.dispatchTouchEvent(event);
+                }
                 if (headAnchor == null) {
+                    isIntercept = false;
                     markView.setCanStartToDraw(false);
                     markView.dispatchTouchEvent(event);
-                    isIntercept = false;
                     return true;
                 }
 
@@ -148,14 +155,12 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
                     event.setLocation(nextAnchor.getCentreX(), nextAnchor.getCentreY());
                     markView.dispatchTouchEvent(event);
                 }
-                isIntercept = false;
+                isIntercept = headAnchor != null;
                 headAnchor = null;
                 markView.clearDragLines();
                 break;
 
         }
-
-
         return super.dispatchTouchEvent(event);
     }
 
@@ -166,7 +171,7 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
         if (currentElcViewGroup != null) {
             List<Anchor> anchors = currentElcViewGroup.getAnchors();
             for (Anchor anchor : anchors) {
-                if (isInDestArea(x, y, anchor, anchor.getTouchRadius())) {
+                if (Utils.isInDestArea(x, y, anchor, anchor.getTouchRadius())) {
                     return anchor;
                 }
             }
@@ -176,24 +181,13 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
 
     private ElcViewGroup findElcViewGroup(float x, float y) {
         for (ElcViewGroup evg : elcViewGroups) {
-            if (isInDestArea(x, y, evg, 30)) {
+            if (Utils.isInDestArea(x, y, evg, 30)) {
                 return evg;
             }
         }
         return null;
     }
 
-
-    private boolean isInDestArea(float x, float y, View dest, float offset) {
-        Rect rect = new Rect();
-        dest.getGlobalVisibleRect(rect);
-        boolean isFound = (x > rect.left - offset && x < rect.right + offset) && (y > rect.top - offset && y < Math.abs(rect.bottom + offset));
-        if (isFound) {
-            Log.d(TAG, "isInDestArea() called with: x = [" + x + "], y = [" + y + "]");
-            Log.d(TAG, "isInDestArea() called with: rect: = " + rect.toString());
-        }
-        return isFound;
-    }
 
     @Override
     public boolean intercept(float x, float y) {
