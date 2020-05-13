@@ -2,12 +2,22 @@ package com.example.elcapplication;
 
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 
 public class TranslateOnTouchHandler {
     private float rawX;
     private float rawY;
 
     public boolean translateOnTouch(View view, MotionEvent event) {
+        if (view == null || view.getParent() == null) {
+            return false;
+        }
+        int w = view.getWidth();
+        int h = view.getHeight();
+
+        int pw = ((ViewGroup) view.getParent()).getWidth();
+        int ph = ((ViewGroup) view.getParent()).getHeight();
+
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 //按下的
@@ -20,7 +30,7 @@ public class TranslateOnTouchHandler {
                 float newY = event.getRawY();
                 float dX = newX - rawX;
                 float dY = newY - rawY;
-                onTranslate(dX, dY);
+                onTranslate(view, dX, dY);
                 //移动的时候原控件的坐标
                 int l = view.getLeft();
                 int t = view.getTop();
@@ -29,15 +39,23 @@ public class TranslateOnTouchHandler {
                 t += dY;
                 int r = l + view.getWidth();
                 int b = t + view.getHeight();
-                view.layout(l, t, r, b);
+                if (l + w < pw && b < ph && l > 0 && t > 0) {
+                    view.layout(l, t, r, b);
+                }
                 //更新坐标
                 rawX = newX;
                 rawY = newY;
+                break;
+            case MotionEvent.ACTION_UP:
+                onTranslateOver();
                 break;
         }
         return true;
     }
 
-    public void onTranslate(float dx, float dy) {
+    public void onTranslate(View view, float dx, float dy) {
+    }
+
+    public void onTranslateOver() {
     }
 }

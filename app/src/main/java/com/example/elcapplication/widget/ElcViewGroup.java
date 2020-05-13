@@ -10,32 +10,34 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.elcapplication.R;
 import com.example.elcapplication.TranslateOnTouchHandler;
+import com.example.elcapplication.elcview.Electric;
 import com.example.elcapplication.uitls.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ElcViewGroup extends FrameLayout {
-    public static final int STATE_NORMAL = 0;//长按进入删除模式（STATE_DELETE）
-    public static final int STATE_LAYOUT = 1;//可拖动、删除以及固定位置
-    public static final int STATE_EDITABLE = 2;//仅可删除以及切换至STATE_NORMAL
-
+public abstract class ElcViewGroup extends FrameLayout {
+    public static final int STATE_NORMAL = 0;//正常模式，无编按可正常连线
+    public static final int STATE_LAYOUT = 1;//可拖动、删除、可拖动
+    public static final int STATE_EDITABLE = 2;//仅可删除以及切换至STATE_NORMAL 不可拖动
+    public static final int STATE_BASE = 3;//什么也不能干
+    private OnDeleteListener onDeleteListener;
     private static final String TAG = "ElcViewGroup";
     private TranslateOnTouchHandler translateOnTouchHandler;
     private List<Anchor> anchors = new ArrayList<>();
     private String name;
     private OnTranslateListener onTranslateListener;
     private ImageView deleteBtn, okBtn;
-    private int state = STATE_LAYOUT;
+    private int state = STATE_BASE;
     private Long startDownTime = 0l;
     private boolean isLongClick = false;
-
 
     public List<Anchor> getAnchors() {
         return anchors;
@@ -56,10 +58,21 @@ public class ElcViewGroup extends FrameLayout {
     {
         translateOnTouchHandler = new TranslateOnTouchHandler() {
             @Override
-            public void onTranslate(float dx, float dy) {
-                super.onTranslate(dx, dy);
+            public void onTranslate(View view, float dx, float dy) {
                 if (onTranslateListener != null) {
                     onTranslateListener.onTranslate(dx, dy);
+                }
+            }
+
+            @Override
+            public void onTranslateOver() {
+                super.onTranslateOver();
+                ViewGroup.LayoutParams groupLp = ElcViewGroup.this.getLayoutParams();
+                if (groupLp instanceof MarginLayoutParams) {
+                    MarginLayoutParams mlp = (MarginLayoutParams) groupLp;
+                    mlp.leftMargin = getLeft();
+                    mlp.topMargin = getTop();
+                    setLayoutParams(mlp);
                 }
             }
         };
@@ -79,26 +92,19 @@ public class ElcViewGroup extends FrameLayout {
         FrameLayout.LayoutParams olp = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         olp.gravity = Gravity.START | Gravity.TOP;
         okBtn.setLayoutParams(olp);
-        okBtn.setPadding(0, padding, padding, 0);
+        okBtn.setPadding(padding, padding, 0, 0);
         okBtn.setVisibility(View.GONE);
         okBtn.setImageResource(R.drawable.elc_ic_ok);
         addView(okBtn);
 
-
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, " deleteBtn onClick() called with: v = [" + v + "]");
-                switch (state) {
-                    case STATE_EDITABLE:
-                        ViewGroup parent = (ViewGroup) getParent();
-                        parent.removeView(ElcViewGroup.this);
-                        break;
-                    case STATE_LAYOUT:
-                        setState(STATE_NORMAL);
-                        break;
+                if (onDeleteListener != null) {
+                    onDeleteListener.onDelete(ElcViewGroup.this);
                 }
-
+                ViewGroup parent = (ViewGroup) getParent();
+                parent.removeView(ElcViewGroup.this);
             }
         });
 
@@ -106,14 +112,22 @@ public class ElcViewGroup extends FrameLayout {
         okBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, " deleteBtn onClick() called with: v = [" + v + "]");
                 setState(STATE_NORMAL);
             }
         });
-
         setState(state);
-
     }
+
+    private void setShowActionBtn(boolean isShow) {
+        if (isShow) {
+            deleteBtn.setVisibility(View.VISIBLE);
+            okBtn.setVisibility(View.VISIBLE);
+        } else {
+            deleteBtn.setVisibility(View.GONE);
+            okBtn.setVisibility(View.GONE);
+        }
+    }
+
 
     public int getState() {
         return state;
@@ -123,21 +137,22 @@ public class ElcViewGroup extends FrameLayout {
         this.state = state;
         switch (state) {
             case STATE_EDITABLE:
-                deleteBtn.setVisibility(View.VISIBLE);
-                okBtn.setVisibility(View.VISIBLE);
+                setShowActionBtn(true);
                 setBackgroundResource(R.drawable.elc_shape_evg_bg);
                 break;
             case STATE_NORMAL:
                 setBackgroundColor(Color.TRANSPARENT);
-                deleteBtn.setVisibility(View.GONE);
-                okBtn.setVisibility(View.GONE);
+                setShowActionBtn(false);
                 break;
             case STATE_LAYOUT:
                 setBackgroundResource(R.drawable.elc_shape_evg_bg);
-                deleteBtn.setVisibility(View.VISIBLE);
-                okBtn.setVisibility(View.VISIBLE);
+                setShowActionBtn(true);
                 break;
 
+            case STATE_BASE:
+                setBackgroundResource(R.drawable.elc_shape_evg_bg);
+                setShowActionBtn(false);
+                break;
         }
     }
 
@@ -165,25 +180,30 @@ public class ElcViewGroup extends FrameLayout {
         this.name = name;
     }
 
+    public OnDeleteListener getOnDeleteListener() {
+        return onDeleteListener;
+    }
+
+    public void setOnDeleteListener(OnDeleteListener onDeleteListener) {
+        this.onDeleteListener = onDeleteListener;
+    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         Log.d(TAG, "onTouchEvent() called with: event = [" + event + "]");
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                isLongClick = false;
                 startDownTime = event.getEventTime();
                 break;
+
             case MotionEvent.ACTION_MOVE:
+                ansysAction(event);
                 break;
 
             case MotionEvent.ACTION_UP:
-                if (startDownTime < 0) {
-                    isLongClick = false;
-                } else if (event.getEventTime() - startDownTime > 1200) {
-                    isLongClick = true;
-                    Log.d(TAG, "onTouchEvent() called with:---------> isLongClick = [" + isLongClick + "]");
-                }
-                checkState(event);
+                ansysAction(event);
+                break;
         }
 
         if (state == STATE_LAYOUT) {
@@ -205,6 +225,15 @@ public class ElcViewGroup extends FrameLayout {
 
 
         return true;
+    }
+
+    private void ansysAction(MotionEvent event) {
+        if (startDownTime < 0) {
+            isLongClick = false;
+        } else if (event.getEventTime() - startDownTime > 1200) {
+            isLongClick = true;
+        }
+        checkState(event);
     }
 
     private Boolean checkState(MotionEvent event) {
@@ -229,17 +258,23 @@ public class ElcViewGroup extends FrameLayout {
         setState(STATE_EDITABLE);
     }
 
-    private String string = "ElcViewGroup{" +
-            ", name='" + name + '\'' +
-            "anchors=" + anchors +
-            '}';
 
     @Override
     public String toString() {
-        return string;
+        return "ElcViewGroup{" +
+                ", name='" + name + '\'' +
+                "anchors=" + anchors +
+                '}';
     }
 
     public interface OnTranslateListener {
         void onTranslate(float dx, float dy);
     }
+
+    public interface OnDeleteListener {
+        void onDelete(ElcViewGroup elcViewGroup);
+    }
+
+    public abstract ElcViewGroup create();
+
 }

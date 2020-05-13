@@ -11,32 +11,32 @@ import com.example.elcapplication.widget.Anchor;
 import com.example.elcapplication.widget.ElcViewGroup;
 
 /**
- * 开关
+ * 电压表
  */
-public class Switch extends ElcViewGroup {
-    public Switch(Context context) {
+public class Voltmeter extends ElcViewGroup {
+    public Voltmeter(Context context) {
         super(context);
     }
 
-    public Switch(Context context, @Nullable AttributeSet attrs) {
+    public Voltmeter(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public Switch(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public Voltmeter(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
     @Override
     public ElcViewGroup create() {
-        return new Switch(getContext());
+        return new Voltmeter(getContext());
     }
     {
-        String name = "S";
+        String name = "V";
         Object tag = getTag();
         if (tag != null) {
             name = tag.toString();
         }
         setName(name);
-        LayoutInflater.from(getContext()).inflate(R.layout.elc_layout_s, this);
+        LayoutInflater.from(getContext()).inflate(R.layout.elc_layout_v, this);
         Anchor leftAnchor = findViewById(R.id.elc_anchor_l);
         leftAnchor.setName(name + "-" + leftAnchor.getTag());
         Anchor rightAnchor = findViewById(R.id.elc_anchor_r);

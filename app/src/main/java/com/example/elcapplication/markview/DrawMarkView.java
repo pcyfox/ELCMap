@@ -34,6 +34,7 @@ public class DrawMarkView extends View {
     private static final String TAG = "DrawMarkView";
     private DragEventInterceptor dragEventInterceptor;
     private Set<Pair<MarkLine, Integer>> dragLines;
+    private OnDeleteLineListener onDeleteLineListener;
 
 
     //用于记录与恢复
@@ -80,9 +81,9 @@ public class DrawMarkView extends View {
         dragLines = new HashSet<>();
     }
 
+
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        // boolean isConsume = false;
+    public boolean dispatchTouchEvent(MotionEvent event) {
         float x = event.getX();
         float y = event.getY();
         switch (event.getAction()) {
@@ -96,11 +97,9 @@ public class DrawMarkView extends View {
                 touchUp(x, y);
                 break;
         }
-
         invalidate();
         return false;
     }
-
 
     private void addDragLine(Pair<MarkLine, Integer> line) {
         dragLines.add(line);
@@ -145,9 +144,10 @@ public class DrawMarkView extends View {
 
 
     public Set<Pair<MarkLine, Integer>> findDragLine(float x, float y) {
+        Log.d(TAG, "findDragLine() called with: x = [" + x + "], y = [" + y + "]");
         Set<Pair<MarkLine, Integer>> pairList = new HashSet<>();
         for (MarkLine line : markLines) {
-            int offset = 100;
+            int offset = 60;
             if (Math.abs(line.getStartX() - x) < offset && Math.abs(line.getStartY() - y) < offset) {
                 pairList.add(new Pair<>(line, 0));
             }
@@ -157,6 +157,31 @@ public class DrawMarkView extends View {
         }
         return pairList;
     }
+
+    public void deleteLineByPoint(float x, float y) {
+        Log.d(TAG, "deleteLineByPoint() called with: x = [" + x + "], y = [" + y + "]");
+        List<MarkLine> findLines = findLineByPoint(x, y, 6);
+        Log.d(TAG, "deleteLineByPoint() called with: findLines = [" + findLines + "], y = [" + y + "]");
+        for (MarkLine line : findLines) {
+            markLines.remove(line);
+            invalidate();
+        }
+    }
+
+    public List<MarkLine> findLineByPoint(float x, float y, int offset) {
+        List<MarkLine> findLines = new ArrayList<>();
+        for (MarkLine line : markLines) {
+            if (Math.abs(line.getStartX() - x) < offset && Math.abs(line.getStartY() - y) < offset) {
+                findLines.add(line);
+            }
+            if (Math.abs(line.getEndX() - x) < offset && Math.abs(line.getEndY() - y) < offset) {
+                findLines.add(line);
+            }
+        }
+        return findLines;
+
+    }
+
 
     /**
      * 手指按下时
@@ -287,7 +312,6 @@ public class DrawMarkView extends View {
         while (iterator.hasNext()) {
             if (iterator.next() == line) {
                 iterator.remove();
-                line = null;
                 return true;
             }
         }
@@ -308,7 +332,10 @@ public class DrawMarkView extends View {
         }
     }
 
-
+    /**
+     * @param x
+     * @param y
+     */
     private void deleteTouchLine(float x, float y) {
         float p = 20;
         if (selectedLine == null) {
@@ -316,11 +343,13 @@ public class DrawMarkView extends View {
         }
         float tx = selectedLine.getCurrentDrawTextX();
         float ty = selectedLine.getCurrentDrawTextY();
-        if ((x < tx + 2*p && x > tx - p) && (y < ty + 2*p && y > ty - 2*p)) {
+        if ((x < tx + 2 * p && x > tx - p) && (y < ty + 2 * p && y > ty - 2 * p)) {
+            if (onDeleteLineListener != null) {
+                onDeleteLineListener.onDelete(selectedLine);
+            }
             if (deleteLine(selectedLine)) {
                 selectedLine = null;
                 invalidate();
-                //TODO :----
             }
         }
     }
@@ -381,14 +410,55 @@ public class DrawMarkView extends View {
         }
     }
 
+    /**
+     * 查找触摸区域内是否存在连线
+     *
+     * @param x
+     * @param y
+     * @return
+     */
     public MarkLine findTouchedLine(float x, float y) {
         Log.d(TAG, "findTouchedLine() called with: x = [" + x + "], y = [" + y + "]");
-        float padding = 200f;
+        float padding = 10f;
+        int count = 0;
         for (MarkLine line : markLines) {
-            if (y < line.getEndY() && y > line.getStartY() &&
-                    ((x < line.getStartX() + padding && x > line.getStartX() - padding) || (x < line.getEndX() + padding && x > line.getEndX() - padding))) {
+            float endX = line.getEndX();
+            float startX = line.getStartX();
+            float startY = line.getStartY();
+            float endY = line.getEndY();
+
+            if (startY > endY) {
+                if (y > endY + padding && y < startY - padding) {
+                    count++;
+                }
+            } else {
+                if (y < endY - padding && y > startY + padding) {
+                    count++;
+                }
+            }
+
+            if (startX > endX) {
+                if (x > endX + padding && x < startX - padding) {
+                    count++;
+                }
+            } else {
+                if (x < endX - padding && x > startX + padding) {
+                    count++;
+                }
+            }
+
+            if (count == 2) {
                 Log.d(TAG, "findTouchedLine() called with: line = [" + line + "]");
-                return line;
+                //斜率
+                float k = (line.getEndY() - line.getStartY()) / (line.getEndX() - line.getStartX());
+                float b = y - k * x;
+                //y=kx+b  b+10 b-10
+
+                float y1 = k * x + b + 10;
+                float y2 = k * x + b - 210;
+                if (y > y2 && y < y1) {
+                    return line;
+                }
             }
 
         }
@@ -411,8 +481,16 @@ public class DrawMarkView extends View {
         this.dragEventInterceptor = dragEventInterceptor;
     }
 
+    public void setOnDeleteLineListener(OnDeleteLineListener onDeleteLineListener) {
+        this.onDeleteLineListener = onDeleteLineListener;
+    }
+
     public interface DragEventInterceptor {
         boolean intercept(float x, float y);
+    }
+
+    public interface OnDeleteLineListener {
+        boolean onDelete(MarkLine line);
     }
 }
 

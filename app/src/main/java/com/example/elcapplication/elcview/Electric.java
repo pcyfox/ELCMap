@@ -1,6 +1,7 @@
 package com.example.elcapplication.elcview;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 
@@ -11,32 +12,35 @@ import com.example.elcapplication.widget.Anchor;
 import com.example.elcapplication.widget.ElcViewGroup;
 
 /**
- * 开关
+ * 电源
  */
-public class Switch extends ElcViewGroup {
-    public Switch(Context context) {
+public class Electric extends ElcViewGroup {
+    public Electric(Context context) {
         super(context);
     }
 
-    public Switch(Context context, @Nullable AttributeSet attrs) {
+    public Electric(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+
+       // TypedArray ta = getContext().obtainStyledAttributes(attrs, R.styleable.El);
     }
 
-    public Switch(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public Electric(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
     @Override
     public ElcViewGroup create() {
-        return new Switch(getContext());
+        return new Electric(getContext());
     }
+
     {
-        String name = "S";
+        String name = "E";
         Object tag = getTag();
         if (tag != null) {
             name = tag.toString();
         }
         setName(name);
-        LayoutInflater.from(getContext()).inflate(R.layout.elc_layout_s, this);
+        LayoutInflater.from(getContext()).inflate(R.layout.elc_layout_e, this);
         Anchor leftAnchor = findViewById(R.id.elc_anchor_l);
         leftAnchor.setName(name + "-" + leftAnchor.getTag());
         Anchor rightAnchor = findViewById(R.id.elc_anchor_r);

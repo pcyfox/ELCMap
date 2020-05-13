@@ -2,14 +2,18 @@ package com.example.elcapplication.widget;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
+
+import com.example.elcapplication.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +56,20 @@ public class Anchor extends FrameLayout {
         init();
     }
 
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_MOVE:
+                setBackgroundResource(R.drawable.elc_shape_red_point);
+                break;
+
+            case MotionEvent.ACTION_UP:
+                setBackgroundResource(R.drawable.elc_shape_black_point);
+                break;
+        }
+        return false;
+    }
 
     private void init() {
         nextAnchors = new ArrayList<>();
@@ -64,7 +82,7 @@ public class Anchor extends FrameLayout {
         if (realAnchorView == null) {
             return;
         }
-        touchRadius = getWidth() / 2;
+        touchRadius = getWidth()/2;
         Rect rect = new Rect();
         getGlobalVisibleRect(rect);
         float width = realAnchorView.getWidth();
@@ -83,6 +101,15 @@ public class Anchor extends FrameLayout {
         return centreY;
     }
 
+    @Override
+    public void setBackgroundResource(int resid) {
+        if (realAnchorView instanceof ImageView) {
+            ((ImageView) realAnchorView).setImageResource(resid);
+        } else {
+            realAnchorView.setBackgroundResource(resid);
+        }
+
+    }
 
     public int getTouchRadius() {
         return touchRadius;
@@ -106,11 +133,6 @@ public class Anchor extends FrameLayout {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return false;
     }
 
     public int getParentId() {
