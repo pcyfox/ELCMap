@@ -446,19 +446,21 @@ public class DrawMarkView extends View {
                     count++;
                 }
             }
-
+            Log.d(TAG, "findTouchedLine() called with: count = [" + count + "]");
             if (count == 2) {
-                Log.d(TAG, "findTouchedLine() called with: line = [" + line + "]");
                 //斜率
                 float k = (line.getEndY() - line.getStartY()) / (line.getEndX() - line.getStartX());
+                Log.d(TAG, "findTouchedLine() called with: k = [" + k + "]");
+                //斜率较大时
                 float b = y - k * x;
                 //y=kx+b  b+10 b-10
-
                 float y1 = k * x + b + 10;
-                float y2 = k * x + b - 210;
+                float y2 = k * x + b - 10;
                 if (y > y2 && y < y1) {
                     return line;
                 }
+
+
             }
 
         }
