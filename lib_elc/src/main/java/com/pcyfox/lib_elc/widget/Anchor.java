@@ -27,6 +27,7 @@ public class Anchor extends androidx.appcompat.widget.AppCompatImageView {
     public Anchor(Context context) {
         super(context);
     }
+
     public Anchor(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
@@ -40,7 +41,7 @@ public class Anchor extends androidx.appcompat.widget.AppCompatImageView {
         getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                init();;
+                init();
             }
         });
     }
@@ -137,14 +138,9 @@ public class Anchor extends androidx.appcompat.widget.AppCompatImageView {
 
     @Override
     public String toString() {
-        return "Anchor{" +
-                "centreX=" + centreX +
-                ", centreY=" + centreY +
-                ", touchRadius=" + touchRadius +
-                ", name='" + name + '\'' +
-                ", nextAnchors=" + nextAnchors +
-                ", parentId=" + parentId +
-                ", parentName='" + parentName + '\'' +
-                '}';
+        if (nextAnchors.size() == 0) {
+            return name;
+        }
+        return name + "->" + nextAnchors;
     }
 }

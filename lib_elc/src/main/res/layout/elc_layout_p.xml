@@ -25,7 +25,7 @@
         android:id="@+id/elc_anchor_l"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:tag="Anchor-L"
+        android:tag="L"
         android:src="@drawable/elc_shape_black_point"
         app:layout_constraintStart_toStartOf="@+id/elc_iv_sw"
         app:layout_constraintTop_toTopOf="@+id/elc_iv_sw"/>
@@ -37,7 +37,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/elc_shape_black_point"
-        android:tag="Anchor-R"
+        android:tag="R"
         app:layout_constraintBottom_toBottomOf="@+id/elc_iv_sw"
         app:layout_constraintEnd_toEndOf="@id/elc_iv_sw"
         app:layout_constraintTop_toTopOf="@+id/elc_iv_sw"/>

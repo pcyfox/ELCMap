@@ -103,6 +103,10 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
         }
     }
 
+    public List<ElcViewGroup> getElcViewGroups() {
+        return elcViewGroups;
+    }
+
     private void addElcView(View child) {
         if (child instanceof ElcViewGroup) {
             ElcViewGroup elcViewGroup = (ElcViewGroup) child;
@@ -135,6 +139,14 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
     public void onViewAdded(View child) {
         super.onViewAdded(child);
         addElcView(child);
+    }
+
+    @Override
+    public void onViewRemoved(View child) {
+        if (child instanceof ElcViewGroup) {
+            elcViewGroups.remove(child);
+        }
+        super.onViewRemoved(child);
     }
 
     @Override

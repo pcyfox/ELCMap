@@ -49,7 +49,4 @@ public class Ammeter extends ElcViewGroup {
         leftAnchor.invalidate();
         rightAnchor.invalidate();
     }
-
-
-
 }

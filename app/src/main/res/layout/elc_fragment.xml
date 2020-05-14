@@ -31,11 +31,11 @@
             app:layout_constraintWidth_percent="0.2">
 
             <LinearLayout
-                android:gravity="center_horizontal"
                 android:id="@+id/elc_ll_elements"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal"
                 android:orientation="vertical"
                 android:padding="20dp">
 
@@ -72,6 +72,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp" />
+
+                <Button
+                    android:id="@+id/btn_print"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="6dp"
+                    android:text="Print" />
             </LinearLayout>
         </ScrollView>
 
