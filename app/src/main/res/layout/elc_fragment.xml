@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.example.elcapplication.widget.ElcLinkView
+        <com.pcyfox.elc.widget.ElcLinkView
             android:id="@+id/elc_link_view"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -18,7 +18,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-        </com.example.elcapplication.widget.ElcLinkView>
+        </com.pcyfox.elc.widget.ElcLinkView>
 
 
         <ScrollView
@@ -39,36 +39,36 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <com.example.elcapplication.elcview.Electric
+                <com.pcyfox.elc.elcview.Electric
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
-                <com.example.elcapplication.elcview.Ammeter
+                <com.pcyfox.elc.elcview.Ammeter
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp" />
 
-                <com.example.elcapplication.elcview.Light
+                <com.pcyfox.elc.elcview.Light
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp" />
 
-                <com.example.elcapplication.elcview.POTLIN
+                <com.pcyfox.elc.elcview.POTLIN
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp" />
 
-                <com.example.elcapplication.elcview.Resistance
+                <com.pcyfox.elc.elcview.Resistance
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp" />
 
-                <com.example.elcapplication.elcview.Switch
+                <com.pcyfox.elc.elcview.Switch
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp" />
 
-                <com.example.elcapplication.elcview.Voltmeter
+                <com.pcyfox.elc.elcview.Voltmeter
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp" />

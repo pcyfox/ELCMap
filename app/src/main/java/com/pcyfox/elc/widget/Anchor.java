@@ -1,19 +1,15 @@
-package com.example.elcapplication.widget;
+package com.pcyfox.elc.widget;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
 
-import com.example.elcapplication.R;
+
+import com.pcyfox.elc.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +36,7 @@ public class Anchor extends androidx.appcompat.widget.AppCompatImageView {
     }
 
     {
+        nextAnchors = new ArrayList<>();
         getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -81,7 +78,6 @@ public class Anchor extends androidx.appcompat.widget.AppCompatImageView {
     }
 
     private void init() {
-        nextAnchors = new ArrayList<>();
         touchRadius = getWidth() / 2;
         Rect rect = new Rect();
         getGlobalVisibleRect(rect);
@@ -146,7 +142,7 @@ public class Anchor extends androidx.appcompat.widget.AppCompatImageView {
                 ", centreY=" + centreY +
                 ", touchRadius=" + touchRadius +
                 ", name='" + name + '\'' +
-                ", next=" + nextAnchors +
+                ", nextAnchors=" + nextAnchors +
                 ", parentId=" + parentId +
                 ", parentName='" + parentName + '\'' +
                 '}';

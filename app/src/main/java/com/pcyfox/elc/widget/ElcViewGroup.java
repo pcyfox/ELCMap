@@ -1,24 +1,22 @@
-package com.example.elcapplication.widget;
+package com.pcyfox.elc.widget;
 
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.elcapplication.R;
-import com.example.elcapplication.TranslateOnTouchHandler;
-import com.example.elcapplication.elcview.Electric;
-import com.example.elcapplication.uitls.Utils;
+
+import com.pcyfox.elc.R;
+import com.pcyfox.elc.TranslateOnTouchHandler;
+import com.pcyfox.elc.uitls.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +34,7 @@ public abstract class ElcViewGroup extends FrameLayout {
     private OnTranslateListener onTranslateListener;
     private ImageView deleteBtn, okBtn;
     private int state = STATE_BASE;
-    private Long startDownTime = 0l;
+    private Long startDownTime = 0L;
     private boolean isLongClick = false;
 
     public List<Anchor> getAnchors() {

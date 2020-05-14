@@ -1,18 +1,15 @@
-package com.example.elcapplication.ui
+package com.pcyfox.elc.ui
 
 import android.graphics.Rect
-import android.graphics.RectF
-import android.os.Bundle
 import android.util.Log
 
 import android.view.MotionEvent
-import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
-import com.example.elcapplication.R
-import com.example.elcapplication.widget.ElcViewGroup
+import com.pcyfox.elc.R
+
+import com.pcyfox.elc.widget.ElcViewGroup
 import kotlinx.android.synthetic.main.elc_fragment.*
 
 class ELCFragment(contentLayoutId: Int = R.layout.elc_fragment) : Fragment(contentLayoutId) {

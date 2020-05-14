@@ -1,16 +1,16 @@
-package com.example.elcapplication.widget;
+package com.pcyfox.elc.widget;
 
 import android.content.Context;
-import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 
-import com.example.elcapplication.markview.DrawMarkView;
-import com.example.elcapplication.markview.MarkLine;
-import com.example.elcapplication.uitls.Utils;
+
+import com.pcyfox.elc.markview.DrawMarkView;
+import com.pcyfox.elc.markview.MarkLine;
+import com.pcyfox.elc.uitls.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +46,7 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
         markView.setOnDeleteLineListener(new DrawMarkView.OnDeleteLineListener() {
             @Override
             public boolean onDelete(MarkLine line) {
+                Log.e(TAG, "onDelete() called with: line = [" + line + "]");
                 //有线段被删除，清除对应的锚点
                 for (ElcViewGroup group : elcViewGroups) {
                     for (Anchor anchor : group.getAnchors()) {
@@ -109,6 +110,7 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
             elcViewGroup.setOnDeleteListener(new ElcViewGroup.OnDeleteListener() {
                 @Override
                 public void onDelete(ElcViewGroup elcViewGroup) {
+                    Log.e(TAG, "onDelete() called with: elcViewGroup = [" + elcViewGroup + "]");
                     List<Anchor> anchors = elcViewGroup.getAnchors();
                     for (Anchor anchor : anchors) {
                         markView.deleteLineByPoint(anchor.getCentreX(), anchor.getCentreY());
@@ -210,10 +212,8 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
                         markView.dispatchTouchEvent(event);
                     }
                 }
-
                 isIntercept = headAnchor != null;
                 headAnchor = null;
-                markView.clearDragLines();
                 break;
 
         }

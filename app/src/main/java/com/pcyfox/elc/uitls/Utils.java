@@ -1,12 +1,8 @@
-package com.example.elcapplication.uitls;
+package com.pcyfox.elc.uitls;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.util.Log;
 import android.view.View;
-
-import com.example.elcapplication.widget.Anchor;
-import com.example.elcapplication.widget.ElcViewGroup;
 
 public class Utils {
     /**

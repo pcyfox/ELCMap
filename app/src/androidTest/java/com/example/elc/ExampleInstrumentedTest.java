@@ -1,4 +1,4 @@
-package com.example.elcapplication;
+package com.example.elc;
 
 import android.content.Context;
 

@@ -1,48 +1,45 @@
-package com.example.elcapplication.elcview;
+package com.pcyfox.elc.elcview;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 
 import androidx.annotation.Nullable;
 
-import com.example.elcapplication.R;
-import com.example.elcapplication.widget.Anchor;
-import com.example.elcapplication.widget.ElcViewGroup;
+import com.pcyfox.elc.R;
+import com.pcyfox.elc.widget.Anchor;
+import com.pcyfox.elc.widget.ElcViewGroup;
 
 /**
- * 滑动变阻器
+ * 电源
  */
-public class POTLIN extends ElcViewGroup {
-    public POTLIN(Context context) {
+public class Electric extends ElcViewGroup {
+    public Electric(Context context) {
         super(context);
-        init();
     }
 
-    public POTLIN(Context context, @Nullable AttributeSet attrs) {
+    public Electric(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        init();
+
+       // TypedArray ta = getContext().obtainStyledAttributes(attrs, R.styleable.El);
     }
 
-    public POTLIN(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public Electric(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
     }
-
     @Override
     public ElcViewGroup create() {
-        return new POTLIN(getContext());
+        return new Electric(getContext());
     }
 
-    private void init() {
-        String name = "P";
+    {
+        String name = "E";
         Object tag = getTag();
         if (tag != null) {
             name = tag.toString();
         }
         setName(name);
-        LayoutInflater.from(getContext()).inflate(R.layout.elc_layout_p, this);
+        LayoutInflater.from(getContext()).inflate(R.layout.elc_layout_e, this);
         invalidate();
         Anchor leftAnchor = findViewById(R.id.elc_anchor_l);
         leftAnchor.setName(name + "-" + leftAnchor.getTag());
@@ -52,6 +49,5 @@ public class POTLIN extends ElcViewGroup {
         leftAnchor.invalidate();
         rightAnchor.invalidate();
     }
-
 
 }

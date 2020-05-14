@@ -19,7 +19,7 @@
         tools:ignore="VectorDrawableCompat" />
 
 
-    <com.example.elcapplication.widget.Anchor
+    <com.pcyfox.elc.widget.Anchor
         android:id="@+id/elc_anchor_l"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -31,7 +31,7 @@
 
 
 
-    <com.example.elcapplication.widget.Anchor
+    <com.pcyfox.elc.widget.Anchor
         android:id="@+id/elc_anchor_r"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

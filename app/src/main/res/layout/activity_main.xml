@@ -9,7 +9,7 @@
 
     <fragment
         android:id="@+id/elc_fragment_em"
-        android:name="com.example.elcapplication.ui.ELCFragment"
+        android:name="com.pcyfox.elc.ui.ELCFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

@@ -1,4 +1,4 @@
-package com.example.elcapplication;
+package com.pcyfox.elc;
 
 import android.view.MotionEvent;
 import android.view.View;

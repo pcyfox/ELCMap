@@ -1,4 +1,4 @@
-package com.example.elcapplication.ui;
+package com.pcyfox.elc.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -6,7 +6,8 @@ import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.example.elcapplication.R;
+import com.pcyfox.elc.R;
+
 
 public class MainActivity extends AppCompatActivity {
 

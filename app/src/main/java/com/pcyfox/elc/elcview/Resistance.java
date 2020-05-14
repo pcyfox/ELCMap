@@ -1,46 +1,45 @@
-package com.example.elcapplication.elcview;
+package com.pcyfox.elc.elcview;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 
 import androidx.annotation.Nullable;
 
-import com.example.elcapplication.R;
-import com.example.elcapplication.widget.Anchor;
-import com.example.elcapplication.widget.ElcViewGroup;
+import com.pcyfox.elc.R;
+import com.pcyfox.elc.widget.Anchor;
+import com.pcyfox.elc.widget.ElcViewGroup;
+
 
 /**
- * 电源
+ * 电阻
  */
-public class Electric extends ElcViewGroup {
-    public Electric(Context context) {
+public class Resistance extends ElcViewGroup {
+    public Resistance(Context context) {
         super(context);
     }
 
-    public Electric(Context context, @Nullable AttributeSet attrs) {
+    public Resistance(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-
-       // TypedArray ta = getContext().obtainStyledAttributes(attrs, R.styleable.El);
     }
 
-    public Electric(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public Resistance(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
+
     @Override
     public ElcViewGroup create() {
-        return new Electric(getContext());
+        return new Resistance(getContext());
     }
 
     {
-        String name = "E";
+        String name = "R";
         Object tag = getTag();
         if (tag != null) {
             name = tag.toString();
         }
         setName(name);
-        LayoutInflater.from(getContext()).inflate(R.layout.elc_layout_e, this);
+        LayoutInflater.from(getContext()).inflate(R.layout.elc_layout_r, this);
         invalidate();
         Anchor leftAnchor = findViewById(R.id.elc_anchor_l);
         leftAnchor.setName(name + "-" + leftAnchor.getTag());
