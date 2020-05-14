@@ -18,7 +18,7 @@ import com.example.elcapplication.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Anchor extends FrameLayout {
+public class Anchor extends androidx.appcompat.widget.AppCompatImageView {
     private static final String TAG = "Anchor";
     private float centreX;
     private float centreY;
@@ -27,12 +27,10 @@ public class Anchor extends FrameLayout {
     private List<Anchor> nextAnchors;
     private int parentId = 0;
     private String parentName;
-    private View realAnchorView;
 
     public Anchor(Context context) {
         super(context);
     }
-
     public Anchor(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
@@ -45,7 +43,7 @@ public class Anchor extends FrameLayout {
         getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                Log.d(TAG, "onGlobalLayout() called");
+                init();;
             }
         });
     }
@@ -57,15 +55,26 @@ public class Anchor extends FrameLayout {
     }
 
     @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                init();
+            }
+        }, 60);
+    }
+
+    @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_MOVE:
-                setBackgroundResource(R.drawable.elc_shape_red_point);
+                setImageResource(R.drawable.elc_shape_red_point);
                 break;
 
             case MotionEvent.ACTION_UP:
-                setBackgroundResource(R.drawable.elc_shape_black_point);
+                setImageResource(R.drawable.elc_shape_black_point);
                 break;
         }
         return false;
@@ -73,42 +82,21 @@ public class Anchor extends FrameLayout {
 
     private void init() {
         nextAnchors = new ArrayList<>();
-        if (realAnchorView == null) {
-            if (getChildCount() == 0) {
-                return;
-            }
-            realAnchorView = getChildAt(0);
-        }
-        if (realAnchorView == null) {
-            return;
-        }
-        touchRadius = getWidth()/2;
+        touchRadius = getWidth() / 2;
         Rect rect = new Rect();
         getGlobalVisibleRect(rect);
-        float width = realAnchorView.getWidth();
-        float height = realAnchorView.getHeight();
+        float width = getWidth();
+        float height = getHeight();
         centreX = rect.left + width / 2;
         centreY = rect.bottom - height / 2;
     }
 
     public float getCentreX() {
-        init();
         return centreX;
     }
 
     public float getCentreY() {
-        init();
         return centreY;
-    }
-
-    @Override
-    public void setBackgroundResource(int resid) {
-        if (realAnchorView instanceof ImageView) {
-            ((ImageView) realAnchorView).setImageResource(resid);
-        } else {
-            realAnchorView.setBackgroundResource(resid);
-        }
-
     }
 
     public int getTouchRadius() {
@@ -151,18 +139,16 @@ public class Anchor extends FrameLayout {
         this.parentName = parentName;
     }
 
-    private String string = "Anchor{" +
-            "centreX=" + centreX +
-            ", centreY=" + centreY +
-            ", touchRadius=" + touchRadius +
-            ", name='" + name + '\'' +
-            ", next=" + nextAnchors +
-            ", parentId=" + parentId +
-            ", parentName='" + parentName + '\'' +
-            '}';
-
     @Override
     public String toString() {
-        return string;
+        return "Anchor{" +
+                "centreX=" + centreX +
+                ", centreY=" + centreY +
+                ", touchRadius=" + touchRadius +
+                ", name='" + name + '\'' +
+                ", next=" + nextAnchors +
+                ", parentId=" + parentId +
+                ", parentName='" + parentName + '\'' +
+                '}';
     }
 }

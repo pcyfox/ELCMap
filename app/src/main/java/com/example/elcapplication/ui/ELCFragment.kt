@@ -16,10 +16,6 @@ import com.example.elcapplication.widget.ElcViewGroup
 import kotlinx.android.synthetic.main.elc_fragment.*
 
 class ELCFragment(contentLayoutId: Int = R.layout.elc_fragment) : Fragment(contentLayoutId) {
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-    }
 
     override fun onStart() {
         super.onStart()

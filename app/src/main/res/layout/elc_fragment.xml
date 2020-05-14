@@ -31,6 +31,7 @@
             app:layout_constraintWidth_percent="0.2">
 
             <LinearLayout
+                android:gravity="center_horizontal"
                 android:id="@+id/elc_ll_elements"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

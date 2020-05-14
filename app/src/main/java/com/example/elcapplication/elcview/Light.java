@@ -38,11 +38,14 @@ public class Light extends ElcViewGroup {
         }
         setName(name);
         LayoutInflater.from(getContext()).inflate(R.layout.elc_layout_l, this);
+        invalidate();
         Anchor leftAnchor = findViewById(R.id.elc_anchor_l);
         leftAnchor.setName(name + "-" + leftAnchor.getTag());
         Anchor rightAnchor = findViewById(R.id.elc_anchor_r);
         rightAnchor.setName(name + "-" + rightAnchor.getTag());
         addAnchor(leftAnchor, rightAnchor);
+        leftAnchor.invalidate();
+        rightAnchor.invalidate();
     }
 
 }

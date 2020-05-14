@@ -73,6 +73,8 @@ public abstract class ElcViewGroup extends FrameLayout {
                     mlp.leftMargin = getLeft();
                     mlp.topMargin = getTop();
                     setLayoutParams(mlp);
+                    ((View) getParent()).invalidate();
+                    invalidate();
                 }
             }
         };
@@ -107,8 +109,7 @@ public abstract class ElcViewGroup extends FrameLayout {
                 parent.removeView(ElcViewGroup.this);
             }
         });
-
-
+        invalidate();
         okBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -154,6 +155,10 @@ public abstract class ElcViewGroup extends FrameLayout {
                 setShowActionBtn(false);
                 break;
         }
+        if (getParent() != null) {
+            ((View) getParent()).invalidate();
+        }
+        invalidate();
     }
 
     public void setOnTranslateListener(OnTranslateListener onTranslateListener) {

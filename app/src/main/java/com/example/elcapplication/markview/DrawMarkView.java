@@ -419,30 +419,39 @@ public class DrawMarkView extends View {
      */
     public MarkLine findTouchedLine(float x, float y) {
         Log.d(TAG, "findTouchedLine() called with: x = [" + x + "], y = [" + y + "]");
-        float padding = 10f;
+        //避免触摸Anchor时也判定为选择到线段端
+        float paddingX = 20f;
+        float paddingY = 20f;
         int count = 0;
         for (MarkLine line : markLines) {
-            float endX = line.getEndX();
             float startX = line.getStartX();
+            float endX = line.getEndX();
+
             float startY = line.getStartY();
             float endY = line.getEndY();
+            if (Math.abs(startY - endY) < paddingY) {
+                paddingY = 0;
+            }
+            if (Math.abs(startX - endX) < paddingX) {
+                paddingX = 0;
+            }
 
             if (startY > endY) {
-                if (y > endY + padding && y < startY - padding) {
+                if (y > endY + paddingY && y < startY - paddingY) {
                     count++;
                 }
             } else {
-                if (y < endY - padding && y > startY + padding) {
+                if (y < endY - paddingY && y > startY + paddingY) {
                     count++;
                 }
             }
 
             if (startX > endX) {
-                if (x > endX + padding && x < startX - padding) {
+                if (x > endX + paddingX && x < startX - paddingX) {
                     count++;
                 }
             } else {
-                if (x < endX - padding && x > startX + padding) {
+                if (x < endX - paddingX && x > startX + paddingX) {
                     count++;
                 }
             }
@@ -457,11 +466,13 @@ public class DrawMarkView extends View {
                 float y1 = k * x + b + 10;
                 float y2 = k * x + b - 10;
                 if (y > y2 && y < y1) {
+                    Log.d(TAG, "findTouchedLine() called with: line = [" + line + "]");
                     return line;
                 }
-
-
             }
+            count = 0;
+            paddingX = 20f;
+            paddingY = 20f;
 
         }
         return null;

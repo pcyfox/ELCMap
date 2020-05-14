@@ -23,17 +23,11 @@
         android:id="@+id/elc_anchor_l"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:src="@drawable/elc_shape_black_point"
         android:tag="Anchor-L"
         app:layout_constraintBottom_toBottomOf="@+id/elc_iv_sw"
         app:layout_constraintStart_toStartOf="@+id/elc_iv_sw"
-        app:layout_constraintTop_toTopOf="@+id/elc_iv_sw">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/elc_shape_black_point" />
-
-    </com.example.elcapplication.widget.Anchor>
+        app:layout_constraintTop_toTopOf="@+id/elc_iv_sw"/>
 
 
     <com.example.elcapplication.widget.Anchor
@@ -41,16 +35,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:tag="Anchor-R"
+        android:src="@drawable/elc_shape_black_point"
         app:layout_constraintBottom_toBottomOf="@+id/elc_iv_sw"
         app:layout_constraintEnd_toEndOf="@id/elc_iv_sw"
-        app:layout_constraintTop_toTopOf="@+id/elc_iv_sw">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/elc_shape_black_point" />
-
-    </com.example.elcapplication.widget.Anchor>
+        app:layout_constraintTop_toTopOf="@+id/elc_iv_sw"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

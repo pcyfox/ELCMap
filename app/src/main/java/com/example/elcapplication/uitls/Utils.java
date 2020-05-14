@@ -5,6 +5,9 @@ import android.graphics.Rect;
 import android.util.Log;
 import android.view.View;
 
+import com.example.elcapplication.widget.Anchor;
+import com.example.elcapplication.widget.ElcViewGroup;
+
 public class Utils {
     /**
      * 根据手机的分辨率从 dp 的单位 转成为 px(像素)
@@ -14,13 +17,18 @@ public class Utils {
         return (int) (dpValue * scale + 0.5f);
     }
 
+    /**
+     * 检测坐标是否落在 View dest 所在区域内
+     *
+     * @param x
+     * @param y
+     * @param dest
+     * @param offset
+     * @return
+     */
     public static boolean isInDestArea(float x, float y, View dest, float offset) {
         Rect rect = new Rect();
         dest.getGlobalVisibleRect(rect);
-        boolean isFound = (x > rect.left - offset && x < rect.right + offset) && (y > rect.top - offset && y < Math.abs(rect.bottom + offset));
-        if (isFound) {
-            Log.d("Utils", "isInDestArea() called with: rect: = " + rect.toString());
-        }
-        return isFound;
+        return (x > rect.left - offset && x < rect.right + offset) && (y > rect.top - offset && y < Math.abs(rect.bottom + offset));
     }
 }
