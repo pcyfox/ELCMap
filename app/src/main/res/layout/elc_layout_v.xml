@@ -36,6 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:tag="Anchor-R"
+        android:src="@drawable/elc_shape_black_point"
         app:layout_constraintBottom_toBottomOf="@+id/elc_iv_sw"
         app:layout_constraintEnd_toEndOf="@id/elc_iv_sw"
         app:layout_constraintTop_toTopOf="@+id/elc_iv_sw"/>

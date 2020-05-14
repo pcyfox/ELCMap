@@ -37,10 +37,6 @@ public class DrawMarkView extends View {
     private OnDeleteLineListener onDeleteLineListener;
 
 
-    //用于记录与恢复
-    private float selectedLineEndX;
-    private float selectedLineEndY;
-
     public DrawMarkView(Context context) {
         this(context, null);
     }
@@ -144,7 +140,6 @@ public class DrawMarkView extends View {
 
 
     public Set<Pair<MarkLine, Integer>> findDragLine(float x, float y) {
-        Log.d(TAG, "findDragLine() called with: x = [" + x + "], y = [" + y + "]");
         Set<Pair<MarkLine, Integer>> pairList = new HashSet<>();
         for (MarkLine line : markLines) {
             int offset = 60;
@@ -159,9 +154,7 @@ public class DrawMarkView extends View {
     }
 
     public void deleteLineByPoint(float x, float y) {
-        Log.d(TAG, "deleteLineByPoint() called with: x = [" + x + "], y = [" + y + "]");
         List<MarkLine> findLines = findLineByPoint(x, y, 6);
-        Log.d(TAG, "deleteLineByPoint() called with: findLines = [" + findLines + "], y = [" + y + "]");
         for (MarkLine line : findLines) {
             markLines.remove(line);
             invalidate();
@@ -190,12 +183,12 @@ public class DrawMarkView extends View {
      * @param y
      */
     private void touchDown(float x, float y) {
-        // selectedLine = findLineByEndPoint(x, y);
         startX = x;
         startY = y;
+        if (selectedLine != null) {
+            tryDeleteTouchLine(x, y);
+        }
         selectedLine = findTouchedLine(x, y);
-        deleteTouchLine(x, y);
-
         if (selectedLine == null) {
             mPath.reset();
             mPath.moveTo(x, y);
@@ -203,10 +196,6 @@ public class DrawMarkView extends View {
             mY = y;
             startX = x;
             startY = y;
-        } else {
-//            selectedLineEndX = selectedLine.getEndX();
-//            selectedLineEndY = selectedLine.getEndY();
-//            postDelayed(runnable, ViewConfiguration.getLongPressTimeout());
         }
     }
 
@@ -227,10 +216,6 @@ public class DrawMarkView extends View {
                 mX = x;
                 mY = y;
             }
-        } else {
-//            removeCallbacks(runnable);
-//            selectedLine.setEndX(x);
-//            selectedLine.setEndY(y);
         }
 
     }
@@ -238,21 +223,18 @@ public class DrawMarkView extends View {
     /**
      * 手指抬起时
      */
-    private void touchUp(float endX, float endY) {
-        Log.d(TAG, "touchUp() called with: endX = [" + endX + "], endY = [" + endY + "]  isCanStartToDraw:" + isCanStartToDraw);
+    private void touchUp(float x, float y) {
         if (selectedLine == null) {
             mPath.lineTo(mX, mY);
-            if (Math.abs(startX - endX) > 100 || Math.abs(startY - endY) > 100) {
+            if (Math.abs(startX - x) > 100 || Math.abs(startY - y) > 100) {
                 if (isCanStartToDraw) {
-                    MarkLine line = new MarkLine(startX, startY, endX, endY, "");
+                    MarkLine line = new MarkLine(startX, startY, x, y, "");
                     line.setText("X");
                     //去重
                     if (markLines.size() == 0) {
                         markLines.add(line);
                     } else {
                         selectedLine = markLines.get(markLines.size() - 1);
-                        selectedLineEndX = selectedLine.getEndX();
-                        selectedLineEndY = selectedLine.getEndY();
                         if (!line.equals(selectedLine)) {
                             selectedLine = line;
                             markLines.add(line);
@@ -262,18 +244,7 @@ public class DrawMarkView extends View {
                 }
             }
             mPath.reset();
-            return;
         }
-
-//        if (dragEventInterceptor != null && dragEventInterceptor.intercept(endX, endY)) {
-//            removeCallbacks(runnable);
-//            selectedLine.setEndX(selectedLineEndX);
-//            selectedLine.setEndY(selectedLineEndY);
-//        } else {
-//            removeCallbacks(runnable);
-//            selectedLine.setEndX(endX);
-//            selectedLine.setEndY(endY);
-//        }
     }
 
 
@@ -290,7 +261,6 @@ public class DrawMarkView extends View {
                 drawLine(canvas, line);
             }
         }
-
 
         if (selectedLine != null) {
             drawLineText(selectedLine, canvas);
@@ -319,8 +289,11 @@ public class DrawMarkView extends View {
     }
 
 
+    public MarkLine getSelectedLine() {
+        return selectedLine;
+    }
+
     private void drawLineText(float startX, float startY, float endX, float endY, String text, Canvas canvas) {
-        Log.d(TAG, "drawText() called with: startX = [" + startX + "], startY = [" + startY + "], endX = [" + endX + "], endY = [" + endY + "], text = [" + text + "], canvas = [" + canvas + "]");
         if (!TextUtils.isEmpty(text)) {
             Rect rect = new Rect();
             textPaint.getTextBounds(text, 0, text.length(), rect);
@@ -336,14 +309,17 @@ public class DrawMarkView extends View {
      * @param x
      * @param y
      */
-    private void deleteTouchLine(float x, float y) {
-        float p = 20;
-        if (selectedLine == null) {
-            return;
-        }
+    private void tryDeleteTouchLine(float x, float y) {
+        float p = 35;
+        //文字（"X"）的坐标
         float tx = selectedLine.getCurrentDrawTextX();
         float ty = selectedLine.getCurrentDrawTextY();
-        if ((x < tx + 2 * p && x > tx - p) && (y < ty + 2 * p && y > ty - 2 * p)) {
+
+        Log.d(TAG, "tryDeleteTouchLine() called with: x = [" + x + "], y = [" + y + "]");
+        Log.d(TAG, "tryDeleteTouchLine() called with: tx = [" + tx + "], ty = [" + ty + "]");
+
+        if (Math.abs(tx - x) < p && Math.abs(ty - y) < p) {
+            Log.e(TAG, "tryDeleteTouchLine() delete   success        --");
             if (onDeleteLineListener != null) {
                 onDeleteLineListener.onDelete(selectedLine);
             }
@@ -383,7 +359,7 @@ public class DrawMarkView extends View {
             public void run() {
                 if (markLines.size() > 0) {
                     markLines.remove(markLines.size() - 1);
-                    postInvalidate();
+                    invalidate();
                 }
             }
         });
@@ -393,7 +369,7 @@ public class DrawMarkView extends View {
     public void updateMarkView(String text) {
         if (selectedLine != null) {
             selectedLine.setText(text);
-            postInvalidate();
+            invalidate();
         }
     }
 
@@ -429,50 +405,57 @@ public class DrawMarkView extends View {
 
             float startY = line.getStartY();
             float endY = line.getEndY();
-            if (Math.abs(startY - endY) < paddingY) {
-                paddingY = 0;
-            }
-            if (Math.abs(startX - endX) < paddingX) {
-                paddingX = 0;
-            }
 
-            if (startY > endY) {
-                if (y > endY + paddingY && y < startY - paddingY) {
+            //接近为横线
+            if (Math.abs(startY - endY) < paddingY*2) {
+                if (Math.abs(y - startY) < 30) {
                     count++;
                 }
             } else {
-                if (y < endY - paddingY && y > startY + paddingY) {
-                    count++;
+                if (startY > endY) {
+                    if (y > endY + paddingY && y < startY - paddingY) {
+                        count++;
+                    }
+                } else {
+                    if (y < endY - paddingY && y > startY + paddingY) {
+                        count++;
+                    }
                 }
             }
 
-            if (startX > endX) {
-                if (x > endX + paddingX && x < startX - paddingX) {
+
+            //接近为竖线
+            if (Math.abs(startX - endX) < paddingX*2) {
+                if (Math.abs(x - startX) < 30) {
                     count++;
                 }
             } else {
-                if (x < endX - paddingX && x > startX + paddingX) {
-                    count++;
+                if (startX > endX) {
+                    if (x > endX + paddingX && x < startX - paddingX) {
+                        count++;
+                    }
+                } else {
+                    if (x < endX - paddingX && x > startX + paddingX) {
+                        count++;
+                    }
                 }
             }
-            Log.d(TAG, "findTouchedLine() called with: count = [" + count + "]");
+
+
             if (count == 2) {
                 //斜率
                 float k = (line.getEndY() - line.getStartY()) / (line.getEndX() - line.getStartX());
                 Log.d(TAG, "findTouchedLine() called with: k = [" + k + "]");
-                //斜率较大时
                 float b = y - k * x;
-                //y=kx+b  b+10 b-10
-                float y1 = k * x + b + 10;
-                float y2 = k * x + b - 10;
+                //y=kx+b  b+10 b-10 在线段两侧构建两条平行线，这两条平行线到线段的距离为10
+                float y1 = k * x + b + 40;
+                float y2 = k * x + b - 40;
+                //说明坐标落在构建的两条平行之间
                 if (y > y2 && y < y1) {
-                    Log.d(TAG, "findTouchedLine() called with: line = [" + line + "]");
                     return line;
                 }
             }
             count = 0;
-            paddingX = 20f;
-            paddingY = 20f;
 
         }
         return null;

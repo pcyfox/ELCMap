@@ -138,6 +138,8 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         int action = event.getAction();
+        boolean isHasSelectedLine = markView.getSelectedLine() != null;
+
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 headAnchor = findAnchor(event.getRawX(), event.getRawY());
@@ -148,6 +150,9 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
                     headAnchor.dispatchTouchEvent(event);
                 } else {
                     markView.setCanStartToDraw(false);
+                    if (isHasSelectedLine) {
+                        markView.dispatchTouchEvent(event);
+                    }
                     if (currentElcViewGroup != null) {
                         currentElcViewGroup.dispatchTouchEvent(event);
 //                        List<Anchor> anchorList = currentElcViewGroup.getAnchors();
@@ -172,8 +177,14 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
                     headAnchor.dispatchTouchEvent(event);
                     markView.dispatchTouchEvent(event);
                 }
+                if (isHasSelectedLine) {
+                    markView.dispatchTouchEvent(event);
+                }
                 break;
             case MotionEvent.ACTION_UP:
+                if (isHasSelectedLine) {
+                    markView.dispatchTouchEvent(event);
+                }
                 if (currentElcViewGroup != null && headAnchor == null) {
                     isIntercept = false;
                     currentElcViewGroup.dispatchTouchEvent(event);
@@ -243,7 +254,7 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
             }
             List<Anchor> anchors = currentElcViewGroup.getAnchors();
             for (Anchor anchor : anchors) {
-                if(anchor.getTouchRadius()==0){
+                if (anchor.getTouchRadius() == 0) {
                     anchor.invalidate();
                 }
                 if (Utils.isInDestArea(x, y, anchor, anchor.getTouchRadius() * 3)) {

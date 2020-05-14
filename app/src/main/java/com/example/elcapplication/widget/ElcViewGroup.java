@@ -195,7 +195,6 @@ public abstract class ElcViewGroup extends FrameLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Log.d(TAG, "onTouchEvent() called with: event = [" + event + "]");
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 isLongClick = false;
