@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp">
+
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/elc_iv_sw"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/elc_ic_l"
+        tools:ignore="VectorDrawableCompat" />
+
+
+    <com.pcyfox.lib_elc.widget.Anchor
+        android:id="@+id/elc_anchor_l"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/elc_shape_black_point"
+        android:tag="Anchor-L"
+        app:layout_constraintBottom_toBottomOf="@+id/elc_iv_sw"
+        app:layout_constraintStart_toStartOf="@+id/elc_iv_sw"
+        app:layout_constraintTop_toTopOf="@+id/elc_iv_sw"/>
+
+
+    <com.pcyfox.lib_elc.widget.Anchor
+        android:id="@+id/elc_anchor_r"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:tag="Anchor-R"
+        android:src="@drawable/elc_shape_black_point"
+        app:layout_constraintBottom_toBottomOf="@+id/elc_iv_sw"
+        app:layout_constraintEnd_toEndOf="@id/elc_iv_sw"
+        app:layout_constraintTop_toTopOf="@+id/elc_iv_sw"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

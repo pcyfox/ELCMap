@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.pcyfox.elc.widget.ElcLinkView
+        <com.pcyfox.lib_elc.widget.ElcLinkView
             android:id="@+id/elc_link_view"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -18,7 +18,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-        </com.pcyfox.elc.widget.ElcLinkView>
+        </com.pcyfox.lib_elc.widget.ElcLinkView>
 
 
         <ScrollView
@@ -39,36 +39,36 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <com.pcyfox.elc.elcview.Electric
+                <com.pcyfox.lib_elc.elcview.Electric
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
-                <com.pcyfox.elc.elcview.Ammeter
+                <com.pcyfox.lib_elc.elcview.Ammeter
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp" />
 
-                <com.pcyfox.elc.elcview.Light
+                <com.pcyfox.lib_elc.elcview.Light
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp" />
 
-                <com.pcyfox.elc.elcview.POTLIN
+                <com.pcyfox.lib_elc.elcview.POTLIN
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp" />
 
-                <com.pcyfox.elc.elcview.Resistance
+                <com.pcyfox.lib_elc.elcview.Resistance
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp" />
 
-                <com.pcyfox.elc.elcview.Switch
+                <com.pcyfox.lib_elc.elcview.Switch
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp" />
 
-                <com.pcyfox.elc.elcview.Voltmeter
+                <com.pcyfox.lib_elc.elcview.Voltmeter
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp" />

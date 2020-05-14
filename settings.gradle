@@ -1,2 +1,3 @@
 rootProject.name='ElC Application'
 include ':app'
+include ':lib_elc'

@@ -7,9 +7,10 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
+import com.pcyfox.lib_elc.widget.ElcViewGroup
 import com.pcyfox.elc.R
 
-import com.pcyfox.elc.widget.ElcViewGroup
+
 import kotlinx.android.synthetic.main.elc_fragment.*
 
 class ELCFragment(contentLayoutId: Int = R.layout.elc_fragment) : Fragment(contentLayoutId) {
