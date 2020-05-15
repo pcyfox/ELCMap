@@ -4,3 +4,7 @@
 /.gradle/
 /app/app.iml
 /gradle/
+/.idea/
+/build/
+/build/
+*.iml
