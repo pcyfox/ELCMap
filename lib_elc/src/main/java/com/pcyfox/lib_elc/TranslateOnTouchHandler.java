@@ -37,11 +37,14 @@ public class TranslateOnTouchHandler {
                 //新控件的坐标
                 l += dX;
                 t += dY;
+
                 int r = l + view.getWidth();
                 int b = t + view.getHeight();
-                if (l + w < pw && b < ph && l > 0 && t > 0) {
+
+                if (l + w <= pw && b <= ph && l > 0 && t > 0) {
                     view.layout(l, t, r, b);
                 }
+
                 //更新坐标
                 rawX = newX;
                 rawY = newY;
