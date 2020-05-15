@@ -5,12 +5,11 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.RelativeLayout;
+import android.widget.FrameLayout;
 
 import com.pcyfox.lib_elc.markview.DrawMarkView;
 import com.pcyfox.lib_elc.markview.MarkLine;
 import com.pcyfox.lib_elc.uitls.Utils;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +17,7 @@ import java.util.List;
 /**
  * 电路连线
  */
-public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEventInterceptor {
+public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventInterceptor {
 
     private static final String TAG = "ElcLinkView";
     private DrawMarkView markView;
@@ -83,9 +82,10 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        addView(markView);
+        addView(markView, 0);
         markView.getLayoutParams().width = LayoutParams.MATCH_PARENT;
         markView.getLayoutParams().height = LayoutParams.MATCH_PARENT;
+        //  markView.setBackgroundColor(Color.WHITE);
     }
 
 
@@ -156,15 +156,22 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                headAnchor = findAnchor(event.getRawX(), event.getRawY());
+                float rawX = event.getRawX();
+                float rawY = event.getRawY();
+                headAnchor = findAnchor(rawX, rawY);
                 if (headAnchor != null) {
+                    float anchorCentreX = headAnchor.getCentreX();
+                    float anchorCentreY = headAnchor.getCentreY();
+                    event.setLocation(anchorCentreX, anchorCentreY);
                     markView.setCanStartToDraw(true);
-                    event.setLocation(headAnchor.getCentreX(), headAnchor.getCentreY());
+                    markView.setStartX(anchorCentreX);
+                    markView.setStartY(anchorCentreY);
                     markView.dispatchTouchEvent(event);
                     headAnchor.dispatchTouchEvent(event);
                 } else {
                     markView.setCanStartToDraw(false);
                     if (isHasSelectedLine) {
+                        markView.setCanStartToDraw(true);
                         markView.dispatchTouchEvent(event);
                     }
                     if (currentElcViewGroup != null) {
@@ -205,18 +212,15 @@ public class ElcLinkView extends RelativeLayout implements DrawMarkView.DragEven
                 }
                 if (headAnchor == null) {
                     isIntercept = false;
-                    markView.setCanStartToDraw(false);
                 } else {
                     Anchor nextAnchor = findAnchor(event.getRawX(), event.getRawY());
                     headAnchor.dispatchTouchEvent(event);
-
                     if (nextAnchor != null && !checkAnchor(headAnchor, nextAnchor)) {
                         nextAnchor = null;
                     }
 
                     if (nextAnchor == null) {
                         markView.setCanStartToDraw(false);
-                        markView.dispatchTouchEvent(event);
                     } else {
                         headAnchor.addNextAnchor(nextAnchor);
                         markView.setCanStartToDraw(true);

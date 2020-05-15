@@ -85,7 +85,7 @@ public class Anchor extends androidx.appcompat.widget.AppCompatImageView {
         float width = getWidth();
         float height = getHeight();
         centreX = rect.left + width / 2;
-        centreY = rect.bottom - height / 2;
+        centreY = rect.top + height / 2;
     }
 
     public float getCentreX() {

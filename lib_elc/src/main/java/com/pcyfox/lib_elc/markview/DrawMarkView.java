@@ -26,7 +26,7 @@ import java.util.Set;
 
 public class DrawMarkView extends View {
     private List<MarkLine> markLines = new ArrayList<>();
-    private Paint mLinePaint, textPaint, dashPaint/*专门用来绘制虚线*/;
+    private Paint mLinePaint, textPaint, dashPaint/*专门用来绘制虚线*/, pintPaint;
     private Path mPath;
     private float mX, mY;
     private static final float TOUCH_TOLERANCE = 4;
@@ -37,7 +37,8 @@ public class DrawMarkView extends View {
     private DragEventInterceptor dragEventInterceptor;
     private Set<Pair<MarkLine, Integer>> dragLines;
     private OnDeleteLineListener onDeleteLineListener;
-
+    private Rect rect = new Rect();
+    private float strokeWidth = Utils.dip2px(getContext(), 5);
 
     public DrawMarkView(Context context) {
         this(context, null);
@@ -57,18 +58,25 @@ public class DrawMarkView extends View {
         mLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mLinePaint.setAntiAlias(true);
         mLinePaint.setStyle(Paint.Style.STROKE);
-        mLinePaint.setStrokeWidth(5);
+        mLinePaint.setStrokeWidth(strokeWidth);
         mLinePaint.setColor(Color.GREEN);
+
+        pintPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        pintPaint.setAntiAlias(true);
+        pintPaint.setStyle(Paint.Style.FILL);
+        pintPaint.setStrokeWidth(strokeWidth);
+        pintPaint.setColor(Color.GREEN);
+
 
         dashPaint = new Paint(mLinePaint);
         dashPaint.setColor(Color.RED);
-        dashPaint.setStrokeWidth(3);
+        dashPaint.setStrokeWidth(Utils.dip2px(getContext(), 2));
         dashPaint.setPathEffect(new DashPathEffect(new float[]{25, 5}, 0));
 
         textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         textPaint.setAntiAlias(true);
         textPaint.setStyle(Paint.Style.STROKE);
-        textPaint.setStrokeWidth(5);
+        textPaint.setStrokeWidth(strokeWidth);
         textPaint.setColor(Color.RED);
         textPaint.setTextSize(Utils.dip2px(getContext(), 14));
         textPaint.setStyle(Paint.Style.FILL);
@@ -81,15 +89,23 @@ public class DrawMarkView extends View {
 
 
     @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        getGlobalVisibleRect(rect);
+    }
+
+    @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-        float x = event.getX();
-        float y = event.getY();
+        float x = event.getRawX() - rect.left;
+        float y = event.getRawY() - rect.top;
+
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 touchDown(x, y);
                 break;
             case MotionEvent.ACTION_MOVE:
                 touchMove(x, y);
+
                 break;
             case MotionEvent.ACTION_UP:
                 touchUp(x, y);
@@ -185,8 +201,6 @@ public class DrawMarkView extends View {
      * @param y
      */
     private void touchDown(float x, float y) {
-        startX = x;
-        startY = y;
         if (selectedLine != null) {
             tryDeleteTouchLine(x, y);
         }
@@ -196,8 +210,7 @@ public class DrawMarkView extends View {
             mPath.moveTo(x, y);
             mX = x;
             mY = y;
-            startX = x;
-            startY = y;
+          ;
         }
     }
 
@@ -242,7 +255,6 @@ public class DrawMarkView extends View {
                             markLines.add(line);
                         }
                     }
-
                 }
             }
             mPath.reset();
@@ -274,9 +286,12 @@ public class DrawMarkView extends View {
         float startY = line.getStartY();
         float endX = line.getEndX();
         float endY = line.getEndY();
+        Log.d(TAG, "drawLine() called with: startX = [" + startX + rect.left + "]");
+        Log.d(TAG, "drawLine() called with: startY = [" + startY + rect.top + "]");
+
         canvas.drawLine(startX, startY, endX, endY, mLinePaint);
-        canvas.drawCircle(startX, startY, 10.0f, mLinePaint);
-        canvas.drawCircle(endX, endY, 10.0f, mLinePaint);
+        canvas.drawCircle(startX, startY, Utils.dip2px(getContext(), 5), mLinePaint);
+        canvas.drawCircle(endX, endY, Utils.dip2px(getContext(), 5), mLinePaint);
     }
 
     private Boolean deleteLine(MarkLine line) {
@@ -290,6 +305,21 @@ public class DrawMarkView extends View {
         return false;
     }
 
+    public float getStartX() {
+        return startX;
+    }
+
+    public void setStartX(float startX) {
+        this.startX = startX;
+    }
+
+    public float getStartY() {
+        return startY;
+    }
+
+    public void setStartY(float startY) {
+        this.startY = startY;
+    }
 
     public MarkLine getSelectedLine() {
         return selectedLine;
@@ -409,7 +439,7 @@ public class DrawMarkView extends View {
             float endY = line.getEndY();
 
             //接近为横线
-            if (Math.abs(startY - endY) < paddingY*2) {
+            if (Math.abs(startY - endY) < paddingY * 2) {
                 if (Math.abs(y - startY) < 30) {
                     count++;
                 }
@@ -427,7 +457,7 @@ public class DrawMarkView extends View {
 
 
             //接近为竖线
-            if (Math.abs(startX - endX) < paddingX*2) {
+            if (Math.abs(startX - endX) < paddingX * 2) {
                 if (Math.abs(x - startX) < 30) {
                     count++;
                 }
@@ -463,11 +493,14 @@ public class DrawMarkView extends View {
         return null;
     }
 
+
     public boolean isCanStartToDraw() {
         return isCanStartToDraw;
     }
 
     public void setCanStartToDraw(boolean canStartToDraw) {
+        mPath.reset();
+        invalidate();
         isCanStartToDraw = canStartToDraw;
     }
 
