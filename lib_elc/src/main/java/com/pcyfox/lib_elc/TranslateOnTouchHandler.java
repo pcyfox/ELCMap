@@ -42,7 +42,9 @@ public class TranslateOnTouchHandler {
                 int b = t + view.getHeight();
 
                 if (l + w <= pw && b <= ph && l > 0 && t > 0) {
-                    view.layout(l, t, r, b);
+                    if (Math.abs(t - b) >= view.getHeight() && Math.abs(r - l) >= view.getWidth()) {
+                        view.layout(l, t, r, b);
+                    }
                 }
 
                 //更新坐标

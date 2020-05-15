@@ -1,0 +1,18 @@
+Index: lib_elc/src/main/java/com/pcyfox/lib_elc/TranslateOnTouchHandler.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- lib_elc/src/main/java/com/pcyfox/lib_elc/TranslateOnTouchHandler.java	(revision d01bf6b6539dbdd5135fb35a5ac902f3bed0d6ac)
++++ lib_elc/src/main/java/com/pcyfox/lib_elc/TranslateOnTouchHandler.java	(date 1589530639000)
+@@ -42,7 +42,9 @@
+                 int b = t + view.getHeight();
+ 
+                 if (l + w <= pw && b <= ph && l > 0 && t > 0) {
+-                    view.layout(l, t, r, b);
++                    if (Math.abs(t - b) >= view.getHeight() && Math.abs(r - l) >= view.getWidth()) {
++                        view.layout(l, t, r, b);
++                    }
+                 }
+ 
+                 //更新坐标
