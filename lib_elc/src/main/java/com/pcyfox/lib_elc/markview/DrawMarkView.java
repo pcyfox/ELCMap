@@ -31,6 +31,7 @@ public class DrawMarkView extends View {
     private float mX, mY;
     private static final float TOUCH_TOLERANCE = 4;
     private float startX, startY;
+    private float endX, endY;
     private MarkLine selectedLine;
     private boolean isCanStartToDraw = false;
     private static final String TAG = "DrawMarkView";
@@ -210,7 +211,7 @@ public class DrawMarkView extends View {
             mPath.moveTo(x, y);
             mX = x;
             mY = y;
-          ;
+            ;
         }
     }
 
@@ -243,18 +244,22 @@ public class DrawMarkView extends View {
             mPath.lineTo(mX, mY);
             if (Math.abs(startX - x) > 100 || Math.abs(startY - y) > 100) {
                 if (isCanStartToDraw) {
-                    MarkLine line = new MarkLine(startX, startY, x, y, "");
-                    line.setText("X");
-                    //去重
-                    if (markLines.size() == 0) {
-                        markLines.add(line);
-                    } else {
-                        selectedLine = markLines.get(markLines.size() - 1);
-                        if (!line.equals(selectedLine)) {
-                            selectedLine = line;
+                    if (startX > 0 && startY > 0 && endX > 0 && endY > 0) {
+                        MarkLine line = new MarkLine(startX, startY, endX, endY, "");
+                        line.setText("X");
+                        //去重
+                        if (markLines.size() == 0) {
                             markLines.add(line);
+                        } else {
+                            selectedLine = markLines.get(markLines.size() - 1);
+                            if (!line.equals(selectedLine)) {
+                                selectedLine = line;
+                                markLines.add(line);
+                            }
                         }
+                        startX = endX = endY = startY = 0;
                     }
+
                 }
             }
             mPath.reset();
@@ -305,20 +310,17 @@ public class DrawMarkView extends View {
         return false;
     }
 
-    public float getStartX() {
-        return startX;
-    }
 
-    public void setStartX(float startX) {
+    public void setStartXY(float startX, float startY) {
+        Log.d(TAG, "setStartXY() called with: startX = [" + startX + "], startY = [" + startY + "]");
         this.startX = startX;
-    }
-
-    public float getStartY() {
-        return startY;
-    }
-
-    public void setStartY(float startY) {
         this.startY = startY;
+    }
+
+    public void setEndXY(float endX, float endY) {
+        Log.d(TAG, "setStartXY() called with: startX = [" + startX + "], startY = [" + startY + "]");
+        this.endX = endX;
+        this.endY = endY;
     }
 
     public MarkLine getSelectedLine() {
@@ -332,7 +334,6 @@ public class DrawMarkView extends View {
             int w = rect.width();
             float centerX = (endX + startX) / 2 + w;
             float centerY = (endY + startY) / 2;
-
             canvas.drawText(text, centerX, centerY, textPaint);
         }
     }

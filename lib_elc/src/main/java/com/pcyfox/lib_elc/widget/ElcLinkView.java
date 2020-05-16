@@ -1,6 +1,7 @@
 package com.pcyfox.lib_elc.widget;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -18,12 +19,12 @@ import java.util.List;
  * 电路连线
  */
 public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventInterceptor {
-
     private static final String TAG = "ElcLinkView";
     private DrawMarkView markView;
     private List<ElcViewGroup> elcViewGroups;
     private Anchor headAnchor = null;
     private ElcViewGroup currentElcViewGroup;
+    private Rect rect = new Rect();
 
     public ElcLinkView(Context context) {
         super(context);
@@ -77,6 +78,13 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
         });
         setClickable(true);
         setClickable(true);
+    }
+
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        getGlobalVisibleRect(rect);
     }
 
     @Override
@@ -160,12 +168,11 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                 float rawY = event.getRawY();
                 headAnchor = findAnchor(rawX, rawY);
                 if (headAnchor != null) {
-                    float anchorCentreX = headAnchor.getCentreX();
-                    float anchorCentreY = headAnchor.getCentreY();
+                    float anchorCentreX = headAnchor.getCentreX() - rect.left;
+                    float anchorCentreY = headAnchor.getCentreY() - rect.top;
                     event.setLocation(anchorCentreX, anchorCentreY);
                     markView.setCanStartToDraw(true);
-                    markView.setStartX(anchorCentreX);
-                    markView.setStartY(anchorCentreY);
+                    markView.setStartXY(anchorCentreX, anchorCentreY);
                     markView.dispatchTouchEvent(event);
                     headAnchor.dispatchTouchEvent(event);
                 } else {
@@ -224,7 +231,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                     } else {
                         headAnchor.addNextAnchor(nextAnchor);
                         markView.setCanStartToDraw(true);
-                        event.setLocation(nextAnchor.getCentreX(), nextAnchor.getCentreY());
+                        markView.setEndXY(nextAnchor.getCentreX() - rect.left, nextAnchor.getCentreY() - rect.top);
                         markView.dispatchTouchEvent(event);
                     }
                 }
