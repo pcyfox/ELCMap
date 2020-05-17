@@ -39,7 +39,7 @@ public class DrawMarkView extends View {
     private Set<Pair<MarkLine, Integer>> dragLines;
     private OnDeleteLineListener onDeleteLineListener;
     private Rect rect = new Rect();
-    private float strokeWidth = Utils.dip2px(getContext(), 5);
+    private float strokeWidth = Utils.dip2px(getContext(), 2);
 
     public DrawMarkView(Context context) {
         this(context, null);
@@ -295,8 +295,8 @@ public class DrawMarkView extends View {
         Log.d(TAG, "drawLine() called with: startY = [" + startY + rect.top + "]");
 
         canvas.drawLine(startX, startY, endX, endY, mLinePaint);
-        canvas.drawCircle(startX, startY, Utils.dip2px(getContext(), 5), mLinePaint);
-        canvas.drawCircle(endX, endY, Utils.dip2px(getContext(), 5), mLinePaint);
+        canvas.drawCircle(startX, startY, Utils.dip2px(getContext(), 4), pintPaint);
+        canvas.drawCircle(endX, endY, Utils.dip2px(getContext(), 4), pintPaint);
     }
 
     private Boolean deleteLine(MarkLine line) {
@@ -429,28 +429,31 @@ public class DrawMarkView extends View {
     public MarkLine findTouchedLine(float x, float y) {
         Log.d(TAG, "findTouchedLine() called with: x = [" + x + "], y = [" + y + "]");
         //避免触摸Anchor时也判定为选择到线段端
-        float paddingX = 20f;
-        float paddingY = 20f;
+        float padding = Utils.dip2px(getContext(), 10f);
+        float space = Utils.dip2px(getContext(), 10f);
+
         int count = 0;
         for (MarkLine line : markLines) {
             float startX = line.getStartX();
             float endX = line.getEndX();
+            Log.d(TAG, "findTouchedLine() called with: startX = [" + startX + "], startX = [" + endX + "]");
 
             float startY = line.getStartY();
             float endY = line.getEndY();
+            Log.d(TAG, "findTouchedLine() called with: startY = [" + startY + "], endY = [" + endY + "]");
 
             //接近为横线
-            if (Math.abs(startY - endY) < paddingY * 2) {
-                if (Math.abs(y - startY) < 30) {
+            if (Math.abs(startY - endY) < padding * 2) {
+                if (Math.abs(y - startY) < space) {
                     count++;
                 }
             } else {
                 if (startY > endY) {
-                    if (y > endY + paddingY && y < startY - paddingY) {
+                    if (y > endY + padding && y < startY - padding) {
                         count++;
                     }
                 } else {
-                    if (y < endY - paddingY && y > startY + paddingY) {
+                    if (y < endY - padding && y > startY + padding) {
                         count++;
                     }
                 }
@@ -458,17 +461,17 @@ public class DrawMarkView extends View {
 
 
             //接近为竖线
-            if (Math.abs(startX - endX) < paddingX * 2) {
-                if (Math.abs(x - startX) < 30) {
+            if (Math.abs(startX - endX) < padding * 2) {
+                if (Math.abs(x - startX) < space) {
                     count++;
                 }
             } else {
                 if (startX > endX) {
-                    if (x > endX + paddingX && x < startX - paddingX) {
+                    if (x > endX + padding && x < startX - padding) {
                         count++;
                     }
                 } else {
-                    if (x < endX - paddingX && x > startX + paddingX) {
+                    if (x < endX - padding && x > startX + padding) {
                         count++;
                     }
                 }

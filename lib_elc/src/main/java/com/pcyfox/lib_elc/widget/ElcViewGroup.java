@@ -81,7 +81,7 @@ public abstract class ElcViewGroup extends FrameLayout {
         deleteBtn.setImageResource(R.drawable.elc_ic_delete_x);
 
         LayoutParams dlp = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        int padding = Utils.dip2px(getContext(), 4f);
+        int padding = (int) Utils.dip2px(getContext(), 4f);
         dlp.gravity = Gravity.END | Gravity.TOP;
         deleteBtn.setLayoutParams(dlp);
         deleteBtn.setPadding(0, padding, padding, 0);
@@ -264,7 +264,7 @@ public abstract class ElcViewGroup extends FrameLayout {
     @Override
     public String toString() {
         return "ElcViewGroup{" +
-                ", name='" + name + '\'' +
+                "name='" + name + '\'' +
                 "anchors=" + anchors +
                 '}';
     }

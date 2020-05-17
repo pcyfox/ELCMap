@@ -46,28 +46,33 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
         markView.setOnDeleteLineListener(new DrawMarkView.OnDeleteLineListener() {
             @Override
             public boolean onDelete(MarkLine line) {
-                Log.e(TAG, "onDelete() called with: line = [" + line + "]");
                 //有线段被删除，清除对应的锚点
                 for (ElcViewGroup group : elcViewGroups) {
                     for (Anchor anchor : group.getAnchors()) {
-                        if (Utils.isInDestArea(line.getStartX(), line.getStartY(), anchor, 2)) {
+                        //从线段头部找Anchor
+                        if (Utils.isInDestArea(line.getStartX() + rect.left, line.getStartY() + rect.top, anchor, anchor.getTouchRadius())) {
                             Anchor deleteAnchor = null;
+                            //检测线段尾部是否在nextAnchors中
                             for (Anchor nAnchor : anchor.getNextAnchors()) {
-                                if (Utils.isInDestArea(line.getEndX(), line.getEndY(), nAnchor, 2)) {
+                                if (Utils.isInDestArea(line.getEndX() + rect.left, line.getEndY() + rect.top, nAnchor, anchor.getTouchRadius())) {
                                     deleteAnchor = nAnchor;
                                 }
                             }
                             if (deleteAnchor != null) {
+                                Log.e(TAG, "onDelete() called with: headAnchor = [" + anchor + "]");
+                                Log.e(TAG, "onDelete() called with: deleteAnchor = [" + deleteAnchor + "]");
                                 anchor.getNextAnchors().remove(deleteAnchor);
                             }
-                        } else if (Utils.isInDestArea(line.getEndX(), line.getEndY(), anchor, 2)) {
+                        } else if (Utils.isInDestArea(line.getEndX() + rect.left, line.getEndY() + rect.top, anchor, anchor.getTouchRadius())) {
                             Anchor deleteAnchor = null;
                             for (Anchor nAnchor : anchor.getNextAnchors()) {
-                                if (Utils.isInDestArea(line.getStartX(), line.getStartY(), nAnchor, 2)) {
+                                if (Utils.isInDestArea(line.getStartX() + rect.left, line.getStartY() + rect.top, nAnchor, anchor.getTouchRadius())) {
                                     deleteAnchor = nAnchor;
                                 }
                             }
                             if (deleteAnchor != null) {
+                                Log.e(TAG, "onDelete() called with: headAnchor = [" + anchor + "]");
+                                Log.e(TAG, "onDelete() called with: deleteAnchor = [" + deleteAnchor + "]");
                                 anchor.getNextAnchors().remove(deleteAnchor);
                             }
                         }
@@ -125,7 +130,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                     Log.e(TAG, "onDelete() called with: elcViewGroup = [" + elcViewGroup + "]");
                     List<Anchor> anchors = elcViewGroup.getAnchors();
                     for (Anchor anchor : anchors) {
-                        markView.deleteLineByPoint(anchor.getCentreX(), anchor.getCentreY());
+                        markView.deleteLineByPoint(anchor.getCentreX() - rect.left, anchor.getCentreY() - rect.top);
                     }
                 }
             });
@@ -161,12 +166,18 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
     public boolean dispatchTouchEvent(MotionEvent event) {
         int action = event.getAction();
         boolean isHasSelectedLine = markView.getSelectedLine() != null;
-
+        float rawX = event.getRawX();
+        float rawY = event.getRawY();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                float rawX = event.getRawX();
-                float rawY = event.getRawY();
-                headAnchor = findAnchor(rawX, rawY);
+
+                currentElcViewGroup = findElcViewGroup(rawX, rawY);
+                if (currentElcViewGroup != null) {
+                    headAnchor = findAnchor(rawX, rawY, currentElcViewGroup);
+                } else {
+                    headAnchor = null;
+                }
+
                 if (headAnchor != null) {
                     float anchorCentreX = headAnchor.getCentreX() - rect.left;
                     float anchorCentreY = headAnchor.getCentreY() - rect.top;
@@ -220,7 +231,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                 if (headAnchor == null) {
                     isIntercept = false;
                 } else {
-                    Anchor nextAnchor = findAnchor(event.getRawX(), event.getRawY());
+                    Anchor nextAnchor = findAnchor(rawX, rawY, findElcViewGroup(rawX, rawY, currentElcViewGroup));
                     headAnchor.dispatchTouchEvent(event);
                     if (nextAnchor != null && !checkAnchor(headAnchor, nextAnchor)) {
                         nextAnchor = null;
@@ -269,18 +280,16 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
     }
 
 
-    private Anchor findAnchor(float x, float y) {
-        currentElcViewGroup = findElcViewGroup(x, y);
-        if (currentElcViewGroup != null) {
-            if (currentElcViewGroup.getState() != ElcViewGroup.STATE_NORMAL) {
-                return null;
-            }
-            List<Anchor> anchors = currentElcViewGroup.getAnchors();
+    private Anchor findAnchor(float x, float y, ElcViewGroup form) {
+        Log.d(TAG, "findAnchor() called with: x = [" + x + "], y = [" + y + "], form = [" + form + "]");
+        if (form != null && form.getState() == ElcViewGroup.STATE_NORMAL) {
+            List<Anchor> anchors = form.getAnchors();
             for (Anchor anchor : anchors) {
                 if (anchor.getTouchRadius() == 0) {
                     anchor.invalidate();
                 }
-                if (Utils.isInDestArea(x, y, anchor, anchor.getTouchRadius() * 3)) {
+                if (Utils.isInDestArea(x, y, anchor, anchor.getTouchRadius())) {
+                    Log.d(TAG, "findAnchor() called with: anchor = [" + anchor + "]");
                     return anchor;
                 }
             }
@@ -288,18 +297,35 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
         return null;
     }
 
+    private Anchor findAnchor(float x, float y) {
+        ElcViewGroup elcViewGroup = findElcViewGroup(x, y);
+        return findAnchor(x, y, elcViewGroup);
+    }
+
+
     private ElcViewGroup findElcViewGroup(float x, float y) {
+        return findElcViewGroup(x, y, null);
+    }
+
+    private ElcViewGroup findElcViewGroup(float x, float y, ElcViewGroup except) {
+        ElcViewGroup findView = null;
         for (ElcViewGroup evg : elcViewGroups) {
-            if (Utils.isInDestArea(x, y, evg, 30)) {
-                return evg;
+            if (evg == except) {
+                continue;
+            }
+            if (Utils.isInDestArea(x, y, evg, Utils.dip2px(getContext(), 40f))) {
+                findView = evg;
+                if (evg.getState() == ElcViewGroup.STATE_LAYOUT) {//有多个View叠加时，优先使用处于STATE_LAYOUT状态的
+                    break;
+                }
             }
         }
-        return null;
+        return findView;
     }
 
 
     @Override
     public boolean intercept(float x, float y) {
-        return findAnchor(x, y) == null;
+        return findAnchor(x, y, currentElcViewGroup) == null;
     }
 }

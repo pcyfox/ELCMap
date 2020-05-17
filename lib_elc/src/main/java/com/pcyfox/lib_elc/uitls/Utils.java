@@ -8,9 +8,9 @@ public class Utils {
     /**
      * 根据手机的分辨率从 dp 的单位 转成为 px(像素)
      */
-    public static int dip2px(Context context, float dpValue) {
+    public static float dip2px(Context context, float dpValue) {
         final float scale = context.getResources().getDisplayMetrics().density;
-        return (int) (dpValue * scale + 0.5f);
+        return (dpValue * scale + 0.5f);
     }
 
     /**
@@ -25,6 +25,6 @@ public class Utils {
     public static boolean isInDestArea(float x, float y, View dest, float offset) {
         Rect rect = new Rect();
         dest.getGlobalVisibleRect(rect);
-        return (x > rect.left - offset && x < rect.right + offset) && (y > rect.top - offset && y < Math.abs(rect.bottom + offset));
+        return (x > rect.left - offset && x < rect.right + offset) && (y > rect.top - offset && y < rect.bottom + offset);
     }
 }

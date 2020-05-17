@@ -3,11 +3,11 @@ package com.pcyfox.lib_elc.widget;
 import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewTreeObserver;
 
 import androidx.annotation.Nullable;
-
 
 import com.pcyfox.lib_elc.R;
 
@@ -79,7 +79,7 @@ public class Anchor extends androidx.appcompat.widget.AppCompatImageView {
     }
 
     private void init() {
-        touchRadius = getWidth() / 2;
+        touchRadius = getWidth() + 10;
         Rect rect = new Rect();
         getGlobalVisibleRect(rect);
         float width = getWidth();
@@ -140,6 +140,9 @@ public class Anchor extends androidx.appcompat.widget.AppCompatImageView {
     public String toString() {
         if (nextAnchors.size() == 0) {
             return name;
+        }
+        if(nextAnchors.contains(this)){
+            Log.e(TAG, "toString: ------------------",new IllegalArgumentException("xxxxxxxxxx"));
         }
         return name + "->" + nextAnchors;
     }
