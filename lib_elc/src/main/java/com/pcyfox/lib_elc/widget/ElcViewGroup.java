@@ -34,8 +34,8 @@ public abstract class ElcViewGroup extends FrameLayout {
     private OnTranslateListener onTranslateListener;
     private ImageView deleteBtn, okBtn;
     private int state = STATE_BASE;
-    private Long startDownTime = 0L;
     private boolean isLongClick = false;
+    private MotionEvent currentEvent;
 
     public List<Anchor> getAnchors() {
         return anchors;
@@ -192,31 +192,39 @@ public abstract class ElcViewGroup extends FrameLayout {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(final MotionEvent event) {
+        currentEvent = event;
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 isLongClick = false;
-                startDownTime = event.getEventTime();
+                postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (event.getActionMasked() == MotionEvent.ACTION_UP) {
+                            return;
+                        }
+                        isLongClick = Utils.isInView(currentEvent.getRawX(), currentEvent.getRawY(), ElcViewGroup.this, 0);
+                        checkState(event);
+                    }
+                }, 700);
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                ansysAction(event);
-                break;
 
             case MotionEvent.ACTION_UP:
-                ansysAction(event);
+                checkState(event);
                 break;
         }
 
         if (state == STATE_LAYOUT) {
-            if (Utils.isInDestArea(event.getRawX(), event.getRawY(), deleteBtn, 8)) {
+            if (Utils.isInView(event.getRawX(), event.getRawY(), deleteBtn, 8)) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     deleteBtn.performClick();
                 }
                 return true;
             }
 
-            if (Utils.isInDestArea(event.getRawX(), event.getRawY(), okBtn, 8)) {
+            if (Utils.isInView(event.getRawX(), event.getRawY(), okBtn, 8)) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     okBtn.performClick();
                 }
@@ -229,19 +237,11 @@ public abstract class ElcViewGroup extends FrameLayout {
         return true;
     }
 
-    private void ansysAction(MotionEvent event) {
-        if (startDownTime < 0) {
-            isLongClick = false;
-        } else if (event.getEventTime() - startDownTime > 1200) {
-            isLongClick = true;
-        }
-        checkState(event);
-    }
 
     private Boolean checkState(MotionEvent event) {
         switch (state) {
             case STATE_EDITABLE:
-                if (Utils.isInDestArea(event.getRawX(), event.getRawY(), deleteBtn, 5)) {
+                if (Utils.isInView(event.getRawX(), event.getRawY(), deleteBtn, 5)) {
                     deleteBtn.performClick();
                     return true;
                 }
@@ -249,6 +249,7 @@ public abstract class ElcViewGroup extends FrameLayout {
             case STATE_NORMAL:
                 if (isLongClick) {
                     performLongClick(event);
+                    isLongClick = false;
                 }
                 break;
         }

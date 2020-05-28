@@ -16,15 +16,15 @@ public class Utils {
     /**
      * 检测坐标是否落在 View dest 所在区域内
      *
-     * @param x
-     * @param y
+     * @param x    相对屏幕
+     * @param y    相对屏幕
      * @param dest
-     * @param offset
+     * @param slop  溢出的大小
      * @return
      */
-    public static boolean isInDestArea(float x, float y, View dest, float offset) {
+    public static boolean isInView(float x, float y, View dest, float slop) {
         Rect rect = new Rect();
         dest.getGlobalVisibleRect(rect);
-        return (x > rect.left - offset && x < rect.right + offset) && (y > rect.top - offset && y < rect.bottom + offset);
+        return (x > rect.left - slop && x < rect.right + slop) && (y > rect.top - slop && y < rect.bottom + slop);
     }
 }
