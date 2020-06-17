@@ -9,6 +9,7 @@ import android.view.ViewTreeObserver;
 
 import androidx.annotation.Nullable;
 
+import com.google.gson.Gson;
 import com.pcyfox.lib_elc.R;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class Anchor extends androidx.appcompat.widget.AppCompatImageView {
     private List<Anchor> nextAnchors;
     private int parentId = 0;
     private String parentName;
+    private StringBuilder stringBuilder;
 
     public Anchor(Context context) {
         super(context);
@@ -141,9 +143,15 @@ public class Anchor extends androidx.appcompat.widget.AppCompatImageView {
         if (nextAnchors.size() == 0) {
             return name;
         }
-        if(nextAnchors.contains(this)){
-            Log.e(TAG, "toString: ------------------",new IllegalArgumentException("xxxxxxxxxx"));
+        if (nextAnchors.contains(this)) {
+            Log.e(TAG, "toString: ------------------", new IllegalArgumentException("nextAnchors.contains(this)"));
         }
-        return name + "->" + nextAnchors;
+        stringBuilder = new StringBuilder();
+        List<String> nextAnchorNames = new ArrayList<>();
+        for (Anchor anchor : nextAnchors) {
+            nextAnchorNames.add(anchor.name);
+        }
+        stringBuilder.append(name).append("->").append(new Gson().toJson(nextAnchorNames));
+        return stringBuilder.toString();
     }
 }
