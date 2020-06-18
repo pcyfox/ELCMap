@@ -13,6 +13,7 @@ import com.pcyfox.lib_elc.markview.MarkLine;
 import com.pcyfox.lib_elc.uitls.Utils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -169,16 +170,23 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
     @Override
     public void onViewRemoved(View child) {
         if (child instanceof ElcViewGroup) {
-            elcViewGroups.remove(child);
-            invalidate();
+            Iterator<ElcViewGroup> iterator = elcViewGroups.iterator();
+            while (iterator.hasNext()) {
+                if (iterator.next() == child) {
+                    iterator.remove();
+                }
+            }
         }
         super.onViewRemoved(child);
     }
 
     public void clearWElcViewGroup() {
+        for (ElcViewGroup elcViewGroup : elcViewGroups) {
+            removeView(elcViewGroup);
+        }
         elcViewGroups.clear();
-        invalidate();
     }
+
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
