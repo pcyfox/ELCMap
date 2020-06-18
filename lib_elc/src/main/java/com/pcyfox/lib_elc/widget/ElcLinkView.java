@@ -47,11 +47,13 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
             @Override
             public boolean onDelete(MarkLine line) {
                 //有线段被删除，清除对应的锚点
+                Anchor deleteAnchor = null;
+                boolean foundAnchor = false;
                 for (ElcViewGroup group : elcViewGroups) {
                     for (Anchor anchor : group.getAnchors()) {
                         //从线段头部找Anchor
+
                         if (Utils.isInView(line.getStartX() + rect.left, line.getStartY() + rect.top, anchor, anchor.getTouchRadius())) {
-                            Anchor deleteAnchor = null;
                             //检测线段尾部是否在nextAnchors中
                             for (Anchor nAnchor : anchor.getNextAnchors()) {
                                 if (Utils.isInView(line.getEndX() + rect.left, line.getEndY() + rect.top, nAnchor, anchor.getTouchRadius())) {
@@ -59,24 +61,30 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                                 }
                             }
                             if (deleteAnchor != null) {
-                                Log.e(TAG, "onDelete() called with: headAnchor = [" + anchor + "]");
-                                Log.e(TAG, "onDelete() called with: deleteAnchor = [" + deleteAnchor + "]");
+                                foundAnchor = true;
+                                Log.e(TAG, "onDelete() called with: delete headAnchor = [" + anchor + "]");
+                                Log.e(TAG, "onDelete() called with: delete deleteAnchor = [" + deleteAnchor + "]");
                                 anchor.getNextAnchors().remove(deleteAnchor);
                             }
+
                         } else if (Utils.isInView(line.getEndX() + rect.left, line.getEndY() + rect.top, anchor, anchor.getTouchRadius())) {
-                            Anchor deleteAnchor = null;
                             for (Anchor nAnchor : anchor.getNextAnchors()) {
                                 if (Utils.isInView(line.getStartX() + rect.left, line.getStartY() + rect.top, nAnchor, anchor.getTouchRadius())) {
                                     deleteAnchor = nAnchor;
                                 }
                             }
                             if (deleteAnchor != null) {
-                                Log.e(TAG, "onDelete() called with: headAnchor = [" + anchor + "]");
-                                Log.e(TAG, "onDelete() called with: deleteAnchor = [" + deleteAnchor + "]");
+                                foundAnchor = true;
+                                Log.e(TAG, "onDelete() called with: delete headAnchor = [" + anchor + "]");
+                                Log.e(TAG, "onDelete() called with: delete deleteAnchor = [" + deleteAnchor + "]");
                                 anchor.getNextAnchors().remove(deleteAnchor);
                             }
                         }
                     }
+
+                }
+                if (!foundAnchor) {
+                    //throw new IllegalStateException("on delete line:" + line + "  but not found any Anchor");
                 }
                 return false;
             }
@@ -233,7 +241,9 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                 } else {
                     Anchor nextAnchor = findAnchor(rawX, rawY, findElcViewGroup(rawX, rawY, currentElcViewGroup));
                     headAnchor.dispatchTouchEvent(event);
+
                     if (nextAnchor != null && !checkAnchor(headAnchor, nextAnchor)) {
+
                         nextAnchor = null;
                     }
 
@@ -254,6 +264,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
         return super.dispatchTouchEvent(event);
     }
 
+
     /**
      * 检查连接节点合法性
      *
@@ -262,26 +273,49 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
      * @return
      */
     private boolean checkAnchor(Anchor headAnchor, Anchor nextAnchor) {
+        Log.d(TAG, "checkAnchor() called with: headAnchor = [" + headAnchor + "], nextAnchor = [" + nextAnchor + "]");
         //同一个元件的中的锚点不鞥相互连接
         if (nextAnchor.getParentId() == headAnchor.getParentId()) {
+            Log.e(TAG, "checkAnchor()   同一个元件的中的锚点不鞥相互连接!");
             return false;
         }
+
         List<Anchor> nextAnchors = headAnchor.getNextAnchors();
+
         for (Anchor anchor : nextAnchors) {
             if (anchor == nextAnchor) {
+                Log.e(TAG, "checkAnchor()   nextAnchor不能再次连接headAnchor!");
+                //nextAnchor不能再次连接headAnchor
                 return false;
             }
             //元器件的的一个锚点不能同时连接另一个元器件的多个端点
             if (anchor.getParentId() == nextAnchor.getParentId()) {
+                Log.e(TAG, "checkAnchor()   元器件的的一个锚点不能同时连接另一个元器件的多个端点!");
                 return false;
             }
         }
+
+        nextAnchors = nextAnchor.getNextAnchors();
+        for (Anchor anchor : nextAnchors) {
+            if (anchor == headAnchor) {
+                Log.e(TAG, "checkAnchor()   nextAnchor不能再次连接headAnchor!");
+                //nextAnchor不能再次连接headAnchor
+                return false;
+            }
+            //元器件的的一个锚点不能同时连接另一个元器件的多个端点
+            if (anchor.getParentId() == headAnchor.getParentId()) {
+                Log.e(TAG, "checkAnchor()   元器件的的一个锚点不能同时连接另一个元器件的多个端点!");
+                return false;
+            }
+        }
+
+
         return true;
     }
 
 
     private Anchor findAnchor(float x, float y, ElcViewGroup form) {
-        Log.d(TAG, "findAnchor() called with: x = [" + x + "], y = [" + y + "], form = [" + form + "]");
+        //Log.d(TAG, "findAnchor() called with: x = [" + x + "], y = [" + y + "], form = [" + form + "]");
         if (form != null && form.getState() == ElcViewGroup.STATE_NORMAL) {
             List<Anchor> anchors = form.getAnchors();
             for (Anchor anchor : anchors) {

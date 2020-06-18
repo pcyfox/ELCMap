@@ -211,7 +211,6 @@ public class DrawMarkView extends View {
             mPath.moveTo(x, y);
             mX = x;
             mY = y;
-            ;
         }
     }
 
@@ -251,9 +250,8 @@ public class DrawMarkView extends View {
                         if (markLines.size() == 0) {
                             markLines.add(line);
                         } else {
-                            selectedLine = markLines.get(markLines.size() - 1);
-                            if (!line.equals(selectedLine)) {
-                                selectedLine = line;
+                            MarkLine lastLine = markLines.get(markLines.size() - 1);
+                            if (!line.equals(lastLine)) {
                                 markLines.add(line);
                             }
                         }
@@ -291,8 +289,8 @@ public class DrawMarkView extends View {
         float startY = line.getStartY();
         float endX = line.getEndX();
         float endY = line.getEndY();
-        Log.d(TAG, "drawLine() called with: startX = [" + startX + rect.left + "]");
-        Log.d(TAG, "drawLine() called with: startY = [" + startY + rect.top + "]");
+        //  Log.d(TAG, "drawLine() called with: startX = [" + startX + rect.left + "]");
+        // Log.d(TAG, "drawLine() called with: startY = [" + startY + rect.top + "]");
 
         canvas.drawLine(startX, startY, endX, endY, mLinePaint);
         canvas.drawCircle(startX, startY, Utils.dip2px(getContext(), 4), pintPaint);
@@ -430,17 +428,17 @@ public class DrawMarkView extends View {
         Log.d(TAG, "findTouchedLine() called with: x = [" + x + "], y = [" + y + "]");
         //避免触摸Anchor时也判定为选择到线段端
         float padding = Utils.dip2px(getContext(), 10f);
-        float space = Utils.dip2px(getContext(), 10f);
+        float space = Utils.dip2px(getContext(), 14f);
 
         int count = 0;
         for (MarkLine line : markLines) {
             float startX = line.getStartX();
             float endX = line.getEndX();
-            Log.d(TAG, "findTouchedLine() called with: startX = [" + startX + "], startX = [" + endX + "]");
 
             float startY = line.getStartY();
             float endY = line.getEndY();
-            Log.d(TAG, "findTouchedLine() called with: startY = [" + startY + "], endY = [" + endY + "]");
+            Log.d(TAG, " startY = [" + startY + "], endY = [" + endY + "]");
+            Log.d(TAG, "findTouchedLine() called with: startX = [" + startX + "], endX = [" + endX + "]" +"-- startY = [" + startY + "], endY = [" + endY + "]");
 
             //接近为横线
             if (Math.abs(startY - endY) < padding * 2) {
