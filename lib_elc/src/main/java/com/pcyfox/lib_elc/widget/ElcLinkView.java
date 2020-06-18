@@ -297,7 +297,9 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                 Log.e(TAG, "checkAnchor()   元器件的的一个锚点不能同时连接另一个元器件的多个端点!");
                 return false;
             }
+
         }
+
 
         nextAnchors = nextAnchor.getNextAnchors();
         for (Anchor anchor : nextAnchors) {
@@ -313,7 +315,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
             }
         }
 
-
+        //TODO：还需要阻止一个元器件的的两个Anchor同时去连接一个元器件的同一个Anchor
         return true;
     }
 
