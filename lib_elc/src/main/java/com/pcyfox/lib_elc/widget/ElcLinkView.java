@@ -170,8 +170,14 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
     public void onViewRemoved(View child) {
         if (child instanceof ElcViewGroup) {
             elcViewGroups.remove(child);
+            invalidate();
         }
         super.onViewRemoved(child);
+    }
+
+    public void clearWElcViewGroup() {
+        elcViewGroups.clear();
+        invalidate();
     }
 
     @Override
