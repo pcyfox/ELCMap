@@ -57,6 +57,7 @@ class ELCFragment(contentLayoutId: Int = R.layout.elc_fragment) : Fragment(conte
             elc_link_view.elcViewGroups.forEach {
                 anchorList.addAll(it.anchors)
             }
+            elc_link_view.clearAllElcViewGroup()
             Log.d("ELCFragment first:", anchorList.toString())
         }
     }

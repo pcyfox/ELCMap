@@ -170,21 +170,19 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
     @Override
     public void onViewRemoved(View child) {
         if (child instanceof ElcViewGroup) {
-            Iterator<ElcViewGroup> iterator = elcViewGroups.iterator();
-            while (iterator.hasNext()) {
-                if (iterator.next() == child) {
-                    iterator.remove();
-                }
-            }
+            elcViewGroups.remove(child);
         }
         super.onViewRemoved(child);
     }
 
-    public void clearWElcViewGroup() {
-        for (ElcViewGroup elcViewGroup : elcViewGroups) {
-            removeView(elcViewGroup);
+    public void clearAllElcViewGroup() {
+        Iterator<ElcViewGroup> iterator = elcViewGroups.iterator();
+        while (iterator.hasNext()) {
+            View view = iterator.next();
+            iterator.remove();
+            removeView(view);
         }
-        elcViewGroups.clear();
+        markView.clear();
     }
 
 
@@ -196,7 +194,6 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
         float rawY = event.getRawY();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-
                 currentElcViewGroup = findElcViewGroup(rawX, rawY);
                 if (currentElcViewGroup != null) {
                     headAnchor = findAnchor(rawX, rawY, currentElcViewGroup);
