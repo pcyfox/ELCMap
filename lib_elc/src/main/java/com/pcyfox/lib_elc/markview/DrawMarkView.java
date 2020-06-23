@@ -430,7 +430,7 @@ public class DrawMarkView extends View {
         float padding = Utils.dip2px(getContext(), 10f);
         float space = Utils.dip2px(getContext(), 14f);
 
-        int count = 0;
+        int count = 0;//统计输入坐标在x轴、y轴上符合触摸条件的次数
         for (MarkLine line : markLines) {
             float startX = line.getStartX();
             float endX = line.getEndX();
@@ -480,8 +480,17 @@ public class DrawMarkView extends View {
                 //斜率
                 float k = (line.getEndY() - line.getStartY()) / (line.getEndX() - line.getStartX());
                 Log.d(TAG, "findTouchedLine() called with: k = [" + k + "]");
+
+                if(Float.isInfinite(k)){//x坐标相等，竖线
+                    return line;
+                }
+
+                if(Float.isNaN(k)){//y坐标相等，横线
+                    return line;
+                }
+
                 float b = y - k * x;
-                //y=kx+b  b+10 b-10 在线段两侧构建两条平行线，这两条平行线到线段的距离为10
+                //y=kx+b  b+40 b-40 在线段两侧构建两条平行线，这两条平行线到线段的距离为10
                 float y1 = k * x + b + 40;
                 float y2 = k * x + b - 40;
                 //说明坐标落在构建的两条平行之间
