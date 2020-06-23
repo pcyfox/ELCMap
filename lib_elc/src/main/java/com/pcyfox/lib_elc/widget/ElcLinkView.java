@@ -1,6 +1,7 @@
 package com.pcyfox.lib_elc.widget;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -158,7 +159,14 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                 }
 
                 @Override
-                public void onTranslateOver(ElcViewGroup view) {
+                public void onTranslateOver(ElcViewGroup view, Rect startRect) {
+                    boolean ret = checkOverlap(view);
+                    Log.d(TAG, "checkOverlap() called with: foundOverlappedView = [" + ret + "]");
+                    if (ret) {
+                        //放回原处
+                        view.layout(startRect.left, startRect.top, startRect.bottom, startRect.right);
+                        return;
+                    }
                     align(view);
                 }
             });
@@ -169,40 +177,96 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
         }
     }
 
+    private boolean checkOverlap(View view) {
+        //lt、lb、rt、rb、center
+        Point[] pointArray = {new Point(), new Point(), new Point(), new Point(), new Point()};
+        Rect rect = new Rect();
+        view.getGlobalVisibleRect(rect);
+        pointArray[0].set(rect.left, rect.top);
+        pointArray[1].set(rect.left, rect.bottom);
+        pointArray[2].set(rect.right, rect.top);
+        pointArray[3].set(rect.right, rect.bottom);
+        pointArray[4].set(rect.left + view.getWidth() / 2, rect.top + view.getHeight() / 2);
+
+        for (View destView : elcViewGroups) {
+            if (destView == view) {
+                continue;
+            }
+            for (Point point : pointArray) {
+                if (Utils.isInView(point.x, point.y, destView, Utils.dip2px(4))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void translateViewOut(Point point, View view, View destView) {
+        Point destViewCenterPoint = Utils.getViewCenterPoint(destView);
+        Utils.RelativeRelationship relationship = Utils.getPointsRelativeRelationship(point, destViewCenterPoint, destView.getHeight() * 0.25f);
+        Log.d(TAG, "translateViewOut() called with: relationship = [" + relationship + "], view = [" + view + "], destView = [" + destView + "]");
+        switch (relationship) {
+            case LB:
+                //目标View左边有足够空间
+                int l = view.getWidth();
+                int t = destView.getBottom();
+
+                if (destView.getLeft() > view.getWidth() * 1.25) {
+                    l = (int) (destView.getLeft() - view.getWidth() * 1.25);
+                }
+
+                if (getHeight() - destView.getBottom() > view.getWidth() * 1.25) {
+                    t = (int) (destView.getBottom() + view.getHeight() * 0.25);
+                }
+
+                view.layout(l, t, l + view.getWidth(), t + view.getHeight());
+
+                break;
+            case LT:
+                break;
+            case RB:
+                break;
+            case RT:
+                break;
+        }
+
+
+    }
+
     private void align(View view) {
-        View horizontalAlignViews = null;
-        View verticalAlignViews = null;
+        View horizontalAlignView = null;
+        View verticalAlignView = null;
         for (View destView : elcViewGroups) {
             if (view != destView) {
                 //找到水平方向上与View位置接近且处于最高处的View
                 if (Math.abs(view.getTop() - destView.getTop()) < view.getHeight() * 0.7) {
-                    if (horizontalAlignViews == null) {
-                        horizontalAlignViews = destView;
+                    if (horizontalAlignView == null) {
+                        horizontalAlignView = destView;
                     } else {
-                        if (destView.getTop() < horizontalAlignViews.getTop()) {
-                            horizontalAlignViews = destView;
+                        if (destView.getTop() < horizontalAlignView.getTop()) {
+                            horizontalAlignView = destView;
                         }
                     }
                 }
 
                 if (Math.abs(view.getLeft() - destView.getLeft()) < view.getHeight() * 0.7) {
-                    if (verticalAlignViews == null) {
-                        verticalAlignViews = destView;
+                    if (verticalAlignView == null) {
+                        verticalAlignView = destView;
                     } else {
-                        if (destView.getLeft() < verticalAlignViews.getLeft()) {
-                            verticalAlignViews = destView;
+                        if (destView.getLeft() < verticalAlignView.getLeft()) {
+                            verticalAlignView = destView;
                         }
                     }
                 }
             }
         }
 
-        if (horizontalAlignViews != null) {
-            Utils.align(view, horizontalAlignViews, ALIGN_TYPE_CENTER_HORIZON);
+        if (horizontalAlignView != null) {
+            Utils.align(view, horizontalAlignView, ALIGN_TYPE_CENTER_HORIZON);
         }
 
-        if (verticalAlignViews != null) {
-            Utils.align(view, verticalAlignViews, ALIGN_TYPE_LEFT);
+        if (verticalAlignView != null) {
+            Utils.align(view, verticalAlignView, ALIGN_TYPE_LEFT);
         }
     }
 
@@ -401,6 +465,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
         }
         return null;
     }
+
 
     private Anchor findAnchor(float x, float y) {
         ElcViewGroup elcViewGroup = findElcViewGroup(x, y);

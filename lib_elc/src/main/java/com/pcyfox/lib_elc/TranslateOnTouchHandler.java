@@ -1,5 +1,6 @@
 package com.pcyfox.lib_elc;
 
+import android.graphics.Rect;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,6 +8,8 @@ import android.view.ViewGroup;
 public class TranslateOnTouchHandler {
     private float rawX;
     private float rawY;
+
+    private Rect startRect;
 
     public boolean translateOnTouch(View view, MotionEvent event) {
         if (view == null || view.getParent() == null) {
@@ -23,6 +26,8 @@ public class TranslateOnTouchHandler {
                 //按下的
                 rawX = event.getRawX();
                 rawY = event.getRawY();
+                startRect = new Rect(view.getLeft(), view.getTop(), view.getRight(), view.getBottom());
+                onTranslateStart(view, rawX, rawY);
                 break;
             case MotionEvent.ACTION_MOVE:
                 //移动的事件
@@ -52,23 +57,21 @@ public class TranslateOnTouchHandler {
                 rawY = newY;
                 break;
             case MotionEvent.ACTION_UP:
-                onTranslateOver();
+                onTranslateOver(view, startRect);
                 break;
         }
         return true;
     }
 
 
-
-
+    public void onTranslateStart(View view, float dx, float dy) {
+    }
 
     public void onTranslate(View view, float dx, float dy) {
     }
 
-    public void onTranslateOver() {
+    public void onTranslateOver(View view, Rect startRect) {
     }
-
-
 
 
 }

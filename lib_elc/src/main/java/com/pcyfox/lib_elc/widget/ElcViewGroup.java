@@ -2,6 +2,7 @@ package com.pcyfox.lib_elc.widget;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -63,10 +64,10 @@ public abstract class ElcViewGroup extends FrameLayout {
             }
 
             @Override
-            public void onTranslateOver() {
-                super.onTranslateOver();
+            public void onTranslateOver(View view, Rect startRect) {
+                super.onTranslateOver(view, startRect);
                 if (onTranslateListener != null) {
-                    onTranslateListener.onTranslateOver(ElcViewGroup.this);
+                    onTranslateListener.onTranslateOver(ElcViewGroup.this, startRect);
                 }
 
                 ViewGroup.LayoutParams groupLp = ElcViewGroup.this.getLayoutParams();
@@ -277,7 +278,7 @@ public abstract class ElcViewGroup extends FrameLayout {
     public interface OnTranslateListener {
         void onTranslate(float dx, float dy);
 
-        void onTranslateOver(ElcViewGroup view);
+        void onTranslateOver(ElcViewGroup view, Rect startRect);
     }
 
     public interface OnDeleteListener {
