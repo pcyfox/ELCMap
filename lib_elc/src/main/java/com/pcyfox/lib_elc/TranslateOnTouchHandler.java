@@ -24,9 +24,9 @@ public class TranslateOnTouchHandler {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 //按下的
+                startRect = new Rect(view.getLeft(), view.getTop(), view.getRight(), view.getBottom());
                 rawX = event.getRawX();
                 rawY = event.getRawY();
-                startRect = new Rect(view.getLeft(), view.getTop(), view.getRight(), view.getBottom());
                 onTranslateStart(view, rawX, rawY);
                 break;
             case MotionEvent.ACTION_MOVE:

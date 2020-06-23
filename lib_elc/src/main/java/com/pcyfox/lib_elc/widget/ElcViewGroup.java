@@ -27,6 +27,7 @@ public abstract class ElcViewGroup extends FrameLayout {
     public static final int STATE_LAYOUT = 1;//可拖动、删除、可拖动
     public static final int STATE_EDITABLE = 2;//仅可删除以及切换至STATE_NORMAL 不可拖动
     public static final int STATE_BASE = 3;//什么也不能干
+    public static final int STATE_ERROR = 4;
     private OnDeleteListener onDeleteListener;
     private static final String TAG = "ElcViewGroup";
     private TranslateOnTouchHandler translateOnTouchHandler;
@@ -59,7 +60,7 @@ public abstract class ElcViewGroup extends FrameLayout {
             @Override
             public void onTranslate(View view, float dx, float dy) {
                 if (onTranslateListener != null) {
-                    onTranslateListener.onTranslate(dx, dy);
+                    onTranslateListener.onTranslate(view, dx, dy);
                 }
             }
 
@@ -157,12 +158,17 @@ public abstract class ElcViewGroup extends FrameLayout {
                 setBackgroundResource(R.drawable.elc_shape_evg_bg);
                 setShowActionBtn(false);
                 break;
+
+            case STATE_ERROR:
+                setBackgroundResource(R.drawable.elc_shape_evg_bg_red);
+                setShowActionBtn(true);
+                break;
         }
-        if (getParent() != null) {
-            ((View) getParent()).invalidate();
-        }
-        invalidate();
+
+       // invalidate();
     }
+
+
 
     public void setOnTranslateListener(OnTranslateListener onTranslateListener) {
         this.onTranslateListener = onTranslateListener;
@@ -276,7 +282,7 @@ public abstract class ElcViewGroup extends FrameLayout {
     }
 
     public interface OnTranslateListener {
-        void onTranslate(float dx, float dy);
+        void onTranslate(View view, float dx, float dy);
 
         void onTranslateOver(ElcViewGroup view, Rect startRect);
     }

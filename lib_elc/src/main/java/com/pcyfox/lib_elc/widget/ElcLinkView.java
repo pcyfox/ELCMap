@@ -9,6 +9,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import com.pcyfox.lib_elc.R;
 import com.pcyfox.lib_elc.markview.DrawMarkView;
 import com.pcyfox.lib_elc.markview.MarkLine;
 import com.pcyfox.lib_elc.uitls.Utils;
@@ -37,13 +38,11 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
 
     public ElcLinkView(Context context, AttributeSet attrs) {
         super(context, attrs);
-
     }
 
     public ElcLinkView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
-
 
     {
         markView = new DrawMarkView(getContext());
@@ -139,7 +138,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
 
     private void addElcView(View child) {
         if (child instanceof ElcViewGroup) {
-            ElcViewGroup elcViewGroup = (ElcViewGroup) child;
+            final ElcViewGroup elcViewGroup = (ElcViewGroup) child;
 
             elcViewGroup.setOnDeleteListener(new ElcViewGroup.OnDeleteListener() {
                 @Override
@@ -154,17 +153,23 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
 
             elcViewGroup.setOnTranslateListener(new ElcViewGroup.OnTranslateListener() {
                 @Override
-                public void onTranslate(float dx, float dy) {
-
+                public void onTranslate(View view, float dx, float dy) {
+                    boolean ret = checkOverlap(view);
+                    if (ret) {
+                        elcViewGroup.setBackgroundResource(R.drawable.elc_shape_evg_bg_red);
+                    } else {
+                        elcViewGroup.setBackgroundResource(R.drawable.elc_shape_evg_bg);
+                    }
                 }
 
                 @Override
                 public void onTranslateOver(ElcViewGroup view, Rect startRect) {
+                    elcViewGroup.setBackgroundResource(R.drawable.elc_shape_evg_bg);
                     boolean ret = checkOverlap(view);
                     Log.d(TAG, "checkOverlap() called with: foundOverlappedView = [" + ret + "]");
                     if (ret) {
                         //放回原处
-                        view.layout(startRect.left, startRect.top, startRect.bottom, startRect.right);
+                        view.layout(startRect.left, startRect.top, startRect.right, startRect.bottom);
                         return;
                     }
                     align(view);
@@ -178,8 +183,8 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
     }
 
     private boolean checkOverlap(View view) {
-        //lt、lb、rt、rb、center
-        Point[] pointArray = {new Point(), new Point(), new Point(), new Point(), new Point()};
+        //lt、lb、rt、rb、center、lc、rc
+        Point[] pointArray = {new Point(), new Point(), new Point(), new Point(), new Point(), new Point(), new Point()};
         Rect rect = new Rect();
         view.getGlobalVisibleRect(rect);
         pointArray[0].set(rect.left, rect.top);
@@ -187,50 +192,20 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
         pointArray[2].set(rect.right, rect.top);
         pointArray[3].set(rect.right, rect.bottom);
         pointArray[4].set(rect.left + view.getWidth() / 2, rect.top + view.getHeight() / 2);
+        pointArray[5].set(rect.left, rect.top + view.getHeight() / 2);
+        pointArray[6].set(rect.right, rect.top + view.getHeight() / 2);
 
         for (View destView : elcViewGroups) {
             if (destView == view) {
                 continue;
             }
             for (Point point : pointArray) {
-                if (Utils.isInView(point.x, point.y, destView, Utils.dip2px(4))) {
+                if (Utils.isInView(point.x, point.y, destView, Utils.dip2px(36))) {
                     return true;
                 }
             }
         }
         return false;
-    }
-
-    private void translateViewOut(Point point, View view, View destView) {
-        Point destViewCenterPoint = Utils.getViewCenterPoint(destView);
-        Utils.RelativeRelationship relationship = Utils.getPointsRelativeRelationship(point, destViewCenterPoint, destView.getHeight() * 0.25f);
-        Log.d(TAG, "translateViewOut() called with: relationship = [" + relationship + "], view = [" + view + "], destView = [" + destView + "]");
-        switch (relationship) {
-            case LB:
-                //目标View左边有足够空间
-                int l = view.getWidth();
-                int t = destView.getBottom();
-
-                if (destView.getLeft() > view.getWidth() * 1.25) {
-                    l = (int) (destView.getLeft() - view.getWidth() * 1.25);
-                }
-
-                if (getHeight() - destView.getBottom() > view.getWidth() * 1.25) {
-                    t = (int) (destView.getBottom() + view.getHeight() * 0.25);
-                }
-
-                view.layout(l, t, l + view.getWidth(), t + view.getHeight());
-
-                break;
-            case LT:
-                break;
-            case RB:
-                break;
-            case RT:
-                break;
-        }
-
-
     }
 
     private void align(View view) {
