@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.pcyfox.lib_elc.uitls.Utils.ALIGN_TYPE_CENTER_HORIZON;
+import static com.pcyfox.lib_elc.uitls.Utils.ALIGN_TYPE_LEFT;
+
 /**
  * 电路连线
  */
@@ -136,7 +139,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
     private void addElcView(View child) {
         if (child instanceof ElcViewGroup) {
             ElcViewGroup elcViewGroup = (ElcViewGroup) child;
-            elcViewGroups.add(elcViewGroup);
+
             elcViewGroup.setOnDeleteListener(new ElcViewGroup.OnDeleteListener() {
                 @Override
                 public void onDelete(ElcViewGroup elcViewGroup) {
@@ -147,8 +150,59 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                     }
                 }
             });
+
+            elcViewGroup.setOnTranslateListener(new ElcViewGroup.OnTranslateListener() {
+                @Override
+                public void onTranslate(float dx, float dy) {
+
+                }
+
+                @Override
+                public void onTranslateOver(ElcViewGroup view) {
+                    align(view);
+                }
+            });
+
+            elcViewGroups.add(elcViewGroup);
             invalidate();
             child.invalidate();
+        }
+    }
+
+    private void align(View view) {
+        View horizontalAlignViews = null;
+        View verticalAlignViews = null;
+        for (View destView : elcViewGroups) {
+            if (view != destView) {
+                //找到水平方向上与View位置接近且处于最高处的View
+                if (Math.abs(view.getTop() - destView.getTop()) < view.getHeight() * 0.7) {
+                    if (horizontalAlignViews == null) {
+                        horizontalAlignViews = destView;
+                    } else {
+                        if (destView.getTop() < horizontalAlignViews.getTop()) {
+                            horizontalAlignViews = destView;
+                        }
+                    }
+                }
+
+                if (Math.abs(view.getLeft() - destView.getLeft()) < view.getHeight() * 0.7) {
+                    if (verticalAlignViews == null) {
+                        verticalAlignViews = destView;
+                    } else {
+                        if (destView.getLeft() < verticalAlignViews.getLeft()) {
+                            verticalAlignViews = destView;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (horizontalAlignViews != null) {
+            Utils.align(view, horizontalAlignViews, ALIGN_TYPE_CENTER_HORIZON);
+        }
+
+        if (verticalAlignViews != null) {
+            Utils.align(view, verticalAlignViews, ALIGN_TYPE_LEFT);
         }
     }
 

@@ -65,6 +65,10 @@ public abstract class ElcViewGroup extends FrameLayout {
             @Override
             public void onTranslateOver() {
                 super.onTranslateOver();
+                if (onTranslateListener != null) {
+                    onTranslateListener.onTranslateOver(ElcViewGroup.this);
+                }
+
                 ViewGroup.LayoutParams groupLp = ElcViewGroup.this.getLayoutParams();
                 if (groupLp instanceof MarginLayoutParams) {
                     MarginLayoutParams mlp = (MarginLayoutParams) groupLp;
@@ -272,6 +276,8 @@ public abstract class ElcViewGroup extends FrameLayout {
 
     public interface OnTranslateListener {
         void onTranslate(float dx, float dy);
+
+        void onTranslateOver(ElcViewGroup view);
     }
 
     public interface OnDeleteListener {

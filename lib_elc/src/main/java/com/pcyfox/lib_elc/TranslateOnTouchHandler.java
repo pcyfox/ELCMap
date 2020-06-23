@@ -58,9 +58,17 @@ public class TranslateOnTouchHandler {
         return true;
     }
 
+
+
+
+
     public void onTranslate(View view, float dx, float dy) {
     }
 
     public void onTranslateOver() {
     }
+
+
+
+
 }
