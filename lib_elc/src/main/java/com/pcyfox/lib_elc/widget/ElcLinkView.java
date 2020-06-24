@@ -1,7 +1,7 @@
 package com.pcyfox.lib_elc.widget;
 
 import android.content.Context;
-import android.graphics.Point;
+
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -10,8 +10,11 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import com.pcyfox.lib_elc.R;
+import com.pcyfox.lib_elc.markview.DrawLineView;
 import com.pcyfox.lib_elc.markview.DrawMarkView;
+import com.pcyfox.lib_elc.markview.Line;
 import com.pcyfox.lib_elc.markview.MarkLine;
+import com.pcyfox.lib_elc.markview.Point;
 import com.pcyfox.lib_elc.uitls.Utils;
 
 import java.util.ArrayList;
@@ -26,7 +29,7 @@ import static com.pcyfox.lib_elc.uitls.Utils.ALIGN_TYPE_LEFT;
  */
 public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventInterceptor {
     private static final String TAG = "ElcLinkView";
-    private DrawMarkView markView;
+    private DrawLineView markView;
     private List<ElcViewGroup> elcViewGroups;
     private Anchor headAnchor = null;
     private ElcViewGroup currentElcViewGroup;
@@ -45,21 +48,23 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
     }
 
     {
-        markView = new DrawMarkView(getContext());
-        markView.setDragEventInterceptor(this);
-        markView.setOnDeleteLineListener(new DrawMarkView.OnDeleteLineListener() {
+        markView = new DrawLineView(getContext());
+
+        markView.setOnDeleteLineListener(new DrawLineView.OnDeleteLineListener() {
             @Override
-            public boolean onDelete(MarkLine line) {
+            public boolean onDelete(Line line) {
                 //有线段被删除，清除对应的锚点
                 Anchor deleteAnchor = null;
                 boolean foundAnchor = false;
                 for (ElcViewGroup group : elcViewGroups) {
                     for (Anchor anchor : group.getAnchors()) {
                         //从线段头部找Anchor
-                        if (Utils.isInView(line.getStartX() + rect.left, line.getStartY() + rect.top, anchor, anchor.getTouchRadius())) {
+                        Point head = line.getHeadPoint();
+                        Point end = line.getTrailPoint();
+                        if (Utils.isInView(head.x + rect.left, head.y + rect.top, anchor, anchor.getTouchRadius())) {
                             //检测线段尾部是否在nextAnchors中
                             for (Anchor nAnchor : anchor.getNextAnchors()) {
-                                if (Utils.isInView(line.getEndX() + rect.left, line.getEndY() + rect.top, nAnchor, anchor.getTouchRadius())) {
+                                if (Utils.isInView(end.x + rect.left, end.y + rect.top, nAnchor, anchor.getTouchRadius())) {
                                     deleteAnchor = nAnchor;
                                 }
                             }
@@ -73,9 +78,9 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                             }
                         }
                         //从线段尾部找Anchor
-                        if (Utils.isInView(line.getEndX() + rect.left, line.getEndY() + rect.top, anchor, anchor.getTouchRadius())) {
+                        if (Utils.isInView(end.x + rect.left, end.y + rect.top, anchor, anchor.getTouchRadius())) {
                             for (Anchor nAnchor : anchor.getNextAnchors()) {
-                                if (Utils.isInView(line.getStartX() + rect.left, line.getStartY() + rect.top, nAnchor, anchor.getTouchRadius())) {
+                                if (Utils.isInView(head.x + rect.left, head.y + rect.top, nAnchor, anchor.getTouchRadius())) {
                                     deleteAnchor = nAnchor;
                                 }
                             }
@@ -299,6 +304,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                     float anchorCentreY = headAnchor.getCentreY() - rect.top;
                     event.setLocation(anchorCentreX, anchorCentreY);
                     markView.setCanStartToDraw(true);
+                    markView.setStartPointInRect(getElcViewGroupInnerRect(currentElcViewGroup));
                     markView.setStartXY(anchorCentreX, anchorCentreY);
                     markView.dispatchTouchEvent(event);
                     headAnchor.dispatchTouchEvent(event);
@@ -348,13 +354,11 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                     isIntercept = false;
                 } else {
                     Anchor nextAnchor = findAnchor(rawX, rawY, findElcViewGroup(rawX, rawY, currentElcViewGroup));
+                    markView.setStartPointInRect(getElcViewGroupInnerRect(currentElcViewGroup));
                     headAnchor.dispatchTouchEvent(event);
-
                     if (nextAnchor != null && !checkAnchor(headAnchor, nextAnchor)) {
-
                         nextAnchor = null;
                     }
-
                     if (nextAnchor == null) {
                         markView.setCanStartToDraw(false);
                     } else {
@@ -370,6 +374,19 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
 
         }
         return super.dispatchTouchEvent(event);
+    }
+
+    //从currentElcViewGroup中抠出一块区域，用于判断起点与拐点的连线是否穿过该区域
+    private Rect getElcViewGroupInnerRect(View view) {
+        Rect elcViewGroupInnerRect = new Rect();
+        view.getGlobalVisibleRect(elcViewGroupInnerRect);
+        float startPadding = (rect.left + view.getWidth() * 0.15f);
+        float topPadding = (rect.top + view.getHeight() * 0.15f);
+        elcViewGroupInnerRect.left -= startPadding;
+        elcViewGroupInnerRect.right -= startPadding;
+        elcViewGroupInnerRect.top -= topPadding;
+        elcViewGroupInnerRect.bottom -= topPadding;
+        return elcViewGroupInnerRect;
     }
 
 

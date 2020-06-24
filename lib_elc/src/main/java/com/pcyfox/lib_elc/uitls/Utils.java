@@ -2,8 +2,12 @@ package com.pcyfox.lib_elc.uitls;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.View;
 
@@ -15,6 +19,7 @@ public class Utils {
     public static final int ALIGN_TYPE_CENTER_HORIZON = 4;
 
     private static final String TAG = "Utils";
+
     /**
      * 根据手机的分辨率从 dp 的单位 转成为 px(像素)
      */
@@ -96,8 +101,68 @@ public class Utils {
         }
     }
 
+    public static Bitmap drawableToBitmap(Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            BitmapDrawable bd = (BitmapDrawable) drawable;
+            return bd.getBitmap();
+        }
+        int w = drawable.getIntrinsicWidth();
+        int h = drawable.getIntrinsicHeight();
+        Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, w, h);
+        drawable.draw(canvas);
+        return bitmap;
+    }
+
+
+    public static boolean isLineIntersectRectangle(double linePointX1,
+                                                    double linePointY1,
+                                                    double linePointX2,
+                                                    double linePointY2,
+                                                    double rectangleLeftTopX,
+                                                    double rectangleLeftTopY,
+                                                    double rectangleRightBottomX,
+                                                    double rectangleRightBottomY) {
+        double lineHeight = linePointY1 - linePointY2;
+        double lineWidth = linePointX2 - linePointX1;
+        double t1 = lineHeight * rectangleLeftTopX + lineWidth * rectangleLeftTopY;
+        double t2 = lineHeight * rectangleRightBottomX + lineWidth * rectangleRightBottomY;
+        double t3 = lineHeight * rectangleLeftTopX + lineWidth * rectangleRightBottomY;
+        double t4 = lineHeight * rectangleRightBottomX + lineWidth * rectangleLeftTopY;
+        double c = linePointX1 * linePointY2 - linePointX2 * linePointY1;
+        if ((t1 + c >= 0 && t2 + c <= 0)
+                || (t1 + c <= 0 && t2 + c >= 0)
+                || (t3 + c >= 0 && t4 + c <= 0)
+                || (t3 + c <= 0 && t4 + c >= 0)) {
+            if (rectangleLeftTopX > rectangleRightBottomX) {
+                double temp = rectangleLeftTopX;
+                rectangleLeftTopX = rectangleRightBottomX;
+                rectangleRightBottomX = temp;
+            }
+
+            if (rectangleLeftTopY < rectangleRightBottomY) {
+                double temp1 = rectangleLeftTopY;
+                rectangleLeftTopY = rectangleRightBottomY;
+                rectangleRightBottomY = temp1;
+            }
+
+            if ((linePointX1 < rectangleLeftTopX && linePointX2 < rectangleLeftTopX)
+                    || (linePointX1 > rectangleRightBottomX && linePointX2 > rectangleRightBottomX)
+                    || (linePointY1 > rectangleLeftTopY && linePointY2 > rectangleLeftTopY)
+                    || (linePointY1 < rectangleRightBottomY && linePointY2 < rectangleRightBottomY)) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
 
     public enum RelativeRelationship {
         LT, LB, RT, RB, CENTER
     }
+
 }
