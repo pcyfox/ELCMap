@@ -191,7 +191,7 @@ public class DrawLineView extends View {
             if (!endPointTag.equals(startPointTag)) {
                 float h = endPointRect.bottom - endPointRect.top;
                 float w = endPointRect.right - endPointRect.left;
-                float vp = Math.abs(startY - endY);
+                // float vp = Math.abs(startY - endY);
                 float hp = Math.abs(endX - startX);
 
                 float marginY = h * 1.2f;
@@ -199,41 +199,42 @@ public class DrawLineView extends View {
 
                 Log.d(TAG, "createLine() called   endPointTag.equals(startPointTag):" + false);
                 if (startPointTag.equals("L")) {
-                    if (hp < marginX && startX > endX) {
-                        marginX = -hp;
-                        Point midPoint1 = new Point(startX + marginX, startY);
-                        line.addMidPoint(midPoint1);
+                    if (startX > endX) {
+                        if (hp < marginX) {
+                            marginX = -hp;
+                            Point midPoint1 = new Point(startX + marginX, startY);
+                            line.addMidPoint(midPoint1);
+                        }else {
+                            Point midPoint1 = new Point(startX , endY);
+                            line.addMidPoint(midPoint1);
+                        }
                         return line;
                     }
+
                     marginX = -marginX;
                     Point midPoint1 = new Point(startX + marginX, startY);
                     line.addMidPoint(midPoint1);
-
-                    if (startX > endX) {
-                        Point midPoint2 = new Point(startX + marginX, endY);
-                        line.addMidPoint(midPoint2);
-                        return line;
-                    }
                     Point midPoint2 = new Point(startX + marginX, endY - marginY);
                     line.addMidPoint(midPoint2);
                     Point midPoint3 = new Point(endX, endY - marginY);
                     line.addMidPoint(midPoint3);
 
                 } else {
-                    if (hp < marginX && startX < endX) {
-                        marginX = hp;
-                        Point midPoint1 = new Point(startX + marginX, startY);
-                        line.addMidPoint(midPoint1);
+                    if (startX < endX) {
+                        if (hp < marginX) {
+                            marginX = hp;
+                            Point midPoint1 = new Point(startX + marginX, startY);
+                            line.addMidPoint(midPoint1);
+                        } else {
+                            Point midPoint1 = new Point(endX, startY);
+                            line.addMidPoint(midPoint1);
+                        }
                         return line;
                     }
 
+
                     Point midPoint1 = new Point(startX + marginX, startY);
                     line.addMidPoint(midPoint1);
-                    if (startX < endX) {
-                        Point midPoint2 = new Point(startX + marginX, endY);
-                        line.addMidPoint(midPoint2);
-                        return line;
-                    }
                     Point midPoint2 = new Point(startX + marginX, endY - marginY);
                     line.addMidPoint(midPoint2);
                     Point midPoint3 = new Point(endX, endY - marginY);
