@@ -226,7 +226,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                     }
                 }
 
-                if (Math.abs(view.getLeft() - destView.getLeft()) < view.getHeight() * 1.1) {
+                if (Math.abs(view.getLeft() - destView.getLeft()) < view.getWidth() * 1.1) {
                     if (verticalAlignView == null) {
                         verticalAlignView = destView;
                     } else {
