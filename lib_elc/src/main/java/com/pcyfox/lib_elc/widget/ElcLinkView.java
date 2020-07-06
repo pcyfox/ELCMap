@@ -216,7 +216,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
         for (View destView : elcViewGroups) {
             if (view != destView) {
                 //找到水平方向上与View位置接近且处于最高处的View
-                if (Math.abs(view.getTop() - destView.getTop()) < view.getHeight() * 0.7) {
+                if (Math.abs(view.getTop() - destView.getTop()) < view.getHeight() * 1.1) {
                     if (horizontalAlignView == null) {
                         horizontalAlignView = destView;
                     } else {
@@ -226,7 +226,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                     }
                 }
 
-                if (Math.abs(view.getLeft() - destView.getLeft()) < view.getHeight() * 0.7) {
+                if (Math.abs(view.getLeft() - destView.getLeft()) < view.getHeight() * 1.1) {
                     if (verticalAlignView == null) {
                         verticalAlignView = destView;
                     } else {
