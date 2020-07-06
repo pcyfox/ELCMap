@@ -117,13 +117,13 @@ public class Utils {
 
 
     public static boolean isLineIntersectRectangle(double linePointX1,
-                                                    double linePointY1,
-                                                    double linePointX2,
-                                                    double linePointY2,
-                                                    double rectangleLeftTopX,
-                                                    double rectangleLeftTopY,
-                                                    double rectangleRightBottomX,
-                                                    double rectangleRightBottomY) {
+                                                   double linePointY1,
+                                                   double linePointX2,
+                                                   double linePointY2,
+                                                   double rectangleLeftTopX,
+                                                   double rectangleLeftTopY,
+                                                   double rectangleRightBottomX,
+                                                   double rectangleRightBottomY) {
         double lineHeight = linePointY1 - linePointY2;
         double lineWidth = linePointX2 - linePointX1;
         double t1 = lineHeight * rectangleLeftTopX + lineWidth * rectangleLeftTopY;
@@ -158,6 +158,14 @@ public class Utils {
         } else {
             return false;
         }
+    }
+
+    //直线
+    public static boolean isStraightLineIntersectRectangle(Point pointStart,
+                                                          Point pointEnd,
+                                                          Rect rect) {
+        return (pointStart.x > rect.left && pointStart.x < rect.right) && (pointStart.y > rect.bottom && pointStart.y < rect.top) &&
+                (pointEnd.x > rect.left && pointEnd.x < rect.right) && (pointEnd.y > rect.bottom && pointEnd.y < rect.top);
     }
 
 

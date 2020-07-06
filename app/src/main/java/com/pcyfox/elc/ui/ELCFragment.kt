@@ -1,5 +1,6 @@
 package com.pcyfox.elc.ui
 
+import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.util.Log
 
@@ -20,6 +21,7 @@ class ELCFragment(contentLayoutId: Int = R.layout.elc_fragment) : Fragment(conte
         initView()
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun initView() {
         var newElcView: ElcViewGroup? = null
         elc_ll_elements.children.forEach {

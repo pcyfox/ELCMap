@@ -1,7 +1,6 @@
 package com.pcyfox.lib_elc.widget;
 
 import android.content.Context;
-
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -13,7 +12,6 @@ import com.pcyfox.lib_elc.R;
 import com.pcyfox.lib_elc.markview.DrawLineView;
 import com.pcyfox.lib_elc.markview.DrawMarkView;
 import com.pcyfox.lib_elc.markview.Line;
-import com.pcyfox.lib_elc.markview.MarkLine;
 import com.pcyfox.lib_elc.markview.Point;
 import com.pcyfox.lib_elc.uitls.Utils;
 
@@ -72,8 +70,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                                 foundAnchor = true;
                                 boolean ret = anchor.getNextAnchors().remove(deleteAnchor);
                                 if (ret) {
-                                    Log.e(TAG, "onDelete() from line head Anchor called with: delete headAnchor = [" + anchor + "]");
-                                    Log.e(TAG, "onDelete() from line head Anchor called with: delete deleteAnchor = [" + deleteAnchor + "]");
+                                    Log.e(TAG, "onDelete() from line head Anchor called with: delete headAnchor = [" + anchor + "]" + " deleteAnchor = [" + deleteAnchor + "]");
                                 }
                             }
                         }
@@ -88,8 +85,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                                 foundAnchor = true;
                                 boolean ret = anchor.getNextAnchors().remove(deleteAnchor);
                                 if (ret) {
-                                    Log.e(TAG, "onDelete() form line trail Anchor called with: delete headAnchor = [" + anchor + "]");
-                                    Log.e(TAG, "onDelete() from line trail Anchor called with: delete deleteAnchor = [" + deleteAnchor + "]");
+                                    Log.e(TAG, "onDelete() form line trail Anchor called with: delete headAnchor = [" + anchor + "]" + " delete deleteAnchor = [" + deleteAnchor + "]");
                                 }
                             }
                         }
@@ -192,6 +188,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
         Point[] pointArray = {new Point(), new Point(), new Point(), new Point(), new Point(), new Point(), new Point()};
         Rect rect = new Rect();
         view.getGlobalVisibleRect(rect);
+        //目前设计一条线最多由留个点构成
         pointArray[0].set(rect.left, rect.top);
         pointArray[1].set(rect.left, rect.bottom);
         pointArray[2].set(rect.right, rect.top);
@@ -305,7 +302,9 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                     event.setLocation(anchorCentreX, anchorCentreY);
                     markView.setCanStartToDraw(true);
                     markView.setStartPointInRect(getElcViewGroupInnerRect(currentElcViewGroup));
-                    markView.setStartXY(anchorCentreX, anchorCentreY);
+
+                    markView.setStartXY(anchorCentreX, anchorCentreY,""+headAnchor.getTag());
+
                     markView.dispatchTouchEvent(event);
                     headAnchor.dispatchTouchEvent(event);
                 } else {
@@ -316,16 +315,6 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                     }
                     if (currentElcViewGroup != null) {
                         currentElcViewGroup.dispatchTouchEvent(event);
-//                        List<Anchor> anchorList = currentElcViewGroup.getAnchors();
-//                        for (Anchor anchor : anchorList) {
-//                            markView.addDragLine(anchor.getCentreX(), anchor.getCentreY());
-//                        }
-//                        currentElcViewGroup.setOnTranslateListener(new ElcViewGroup.OnTranslateListener() {
-//                            @Override
-//                            public void onTranslate(float dx, float dy) {
-//                                markView.dragLines(dx, dy);
-//                            }
-//                        });
                     }
 
                 }
@@ -354,7 +343,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                     isIntercept = false;
                 } else {
                     Anchor nextAnchor = findAnchor(rawX, rawY, findElcViewGroup(rawX, rawY, currentElcViewGroup));
-                    markView.setStartPointInRect(getElcViewGroupInnerRect(currentElcViewGroup));
+                    markView.setEndPointInRect(getElcViewGroupInnerRect(currentElcViewGroup));
                     headAnchor.dispatchTouchEvent(event);
                     if (nextAnchor != null && !checkAnchor(headAnchor, nextAnchor)) {
                         nextAnchor = null;
@@ -364,7 +353,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                     } else {
                         headAnchor.addNextAnchor(nextAnchor);
                         markView.setCanStartToDraw(true);
-                        markView.setEndXY(nextAnchor.getCentreX() - rect.left, nextAnchor.getCentreY() - rect.top);
+                        markView.setEndXY(nextAnchor.getCentreX() - rect.left, nextAnchor.getCentreY() - rect.top,""+nextAnchor.getTag());
                         markView.dispatchTouchEvent(event);
                     }
                 }
@@ -377,11 +366,13 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
     }
 
     //从currentElcViewGroup中抠出一块区域，用于判断起点与拐点的连线是否穿过该区域
-    private Rect getElcViewGroupInnerRect(View view) {
+    private Rect getElcViewGroupInnerRect(ElcViewGroup view) {
         Rect elcViewGroupInnerRect = new Rect();
         view.getGlobalVisibleRect(elcViewGroupInnerRect);
+
         float startPadding = (rect.left + view.getWidth() * 0.15f);
         float topPadding = (rect.top + view.getHeight() * 0.15f);
+
         elcViewGroupInnerRect.left -= startPadding;
         elcViewGroupInnerRect.right -= startPadding;
         elcViewGroupInnerRect.top -= topPadding;

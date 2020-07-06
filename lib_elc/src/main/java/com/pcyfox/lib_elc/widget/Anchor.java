@@ -24,7 +24,8 @@ public class Anchor extends androidx.appcompat.widget.AppCompatImageView {
     private List<Anchor> nextAnchors;
     private int parentId = 0;
     private String parentName;
-    private StringBuilder stringBuilder;
+
+
 
     public Anchor(Context context) {
         super(context);
@@ -146,7 +147,7 @@ public class Anchor extends androidx.appcompat.widget.AppCompatImageView {
         if (nextAnchors.contains(this)) {
             Log.e(TAG, "toString: ------------------", new IllegalArgumentException("nextAnchors.contains(this)"));
         }
-        stringBuilder = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder();
         List<String> nextAnchorNames = new ArrayList<>();
         for (Anchor anchor : nextAnchors) {
             nextAnchorNames.add(anchor.name);

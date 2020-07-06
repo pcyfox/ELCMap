@@ -24,7 +24,7 @@ public class Line {
     private boolean isSelected = false;
 
     {
-        deleteBtnCenter=new Point();
+        deleteBtnCenter = new Point();
         //线的Paint
         mLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mLinePaint.setAntiAlias(true);
@@ -125,7 +125,7 @@ public class Line {
     }
 
 
-    public boolean isInRect(float x, float y, float padding/*线段两端点都要减去的部分*/) {
+    public boolean isInLineRect(float x, float y, float padding/*线段两端点都要减去的部分*/) {
         Point proxyHeadPoint = getHeadPoint();
         if (proxyHeadPoint == null || pointList.size() < 2) {
             return false;
@@ -151,6 +151,22 @@ public class Line {
         }
         return false;
     }
+
+
+    private Line finMaxLongPartLine() {
+        Point proxyHeadPoint = getHeadPoint();
+        if (proxyHeadPoint == null || pointList.size() < 2) {
+            return null;
+        }
+
+        float length;
+        for (int i = 1; i < pointList.size(); i++) {
+            Point currentPoint = pointList.get(i);
+            proxyHeadPoint = currentPoint;
+        }
+        return null;
+    }
+
 
     private boolean isInMid(float input, float first, float second, float padding) {
         float min = Math.min(first, second);
@@ -181,6 +197,7 @@ public class Line {
         canvas.drawCircle(headPoint.x, headPoint.y, Utils.dip2px(4), mLinePaint);
         canvas.drawCircle(trailPoint.x, trailPoint.y, Utils.dip2px(4), mLinePaint);
 
+        //绘制deleteBtn
         if (isSelected && deleteBtn != null) {
             int x = (int) (getHeadPoint().x + getTrailPoint().x) / 2;
             int y = (int) (getHeadPoint().y + getTrailPoint().y) / 2;
@@ -194,6 +211,7 @@ public class Line {
             deleteBtnCenter.x = x + deleteBtn.getWidth() / 2;
             deleteBtnCenter.y = y + deleteBtn.getHeight() / 2;
         }
+
     }
 
     public void setLineIsSelected(boolean isSelected) {
@@ -206,7 +224,7 @@ public class Line {
     }
 
     public boolean selectedLine(float x, float y, float padding) {
-        boolean isInRect = isInRect(x, y, padding);
+        boolean isInRect = isInLineRect(x, y, padding);
         setLineIsSelected(isInRect);
         return isInRect;
     }
@@ -226,7 +244,6 @@ public class Line {
         }
         return Math.abs(x - deleteBtnCenter.x) <= deleteBtn.getWidth() && Math.abs(y - deleteBtnCenter.y) <= deleteBtn.getHeight();
     }
-
 
 
     @Override

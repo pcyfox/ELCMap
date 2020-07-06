@@ -191,7 +191,6 @@ public class DrawMarkView extends View {
             }
         }
         return findLines;
-
     }
 
 
@@ -350,7 +349,7 @@ public class DrawMarkView extends View {
         Log.d(TAG, "tryDeleteTouchLine() called with: tx = [" + tx + "], ty = [" + ty + "]");
 
         if (Math.abs(tx - x) < p && Math.abs(ty - y) < p) {
-            Log.e(TAG, "tryDeleteTouchLine() delete   success        --");
+            Log.e(TAG, "tryDeleteTouchLine() delete   success !");
             if (onDeleteLineListener != null) {
                 onDeleteLineListener.onDelete(selectedLine);
             }
