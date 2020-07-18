@@ -83,6 +83,7 @@ public abstract class ElcViewGroup extends FrameLayout {
             }
         };
 
+        translateOnTouchHandler.setMargin((int) Utils.dip2px(24));
         deleteBtn = new ImageView(getContext());
         deleteBtn.setImageResource(R.drawable.elc_ic_delete_x);
 
@@ -169,7 +170,6 @@ public abstract class ElcViewGroup extends FrameLayout {
         }
 
     }
-
 
 
     public void setOnTranslateListener(OnTranslateListener onTranslateListener) {
@@ -291,9 +291,9 @@ public abstract class ElcViewGroup extends FrameLayout {
 
     public interface OnButtonClickListener {
         void onDeleteClick(ElcViewGroup elcViewGroup);
+
         void onOkClick(ElcViewGroup elcViewGroup);
     }
-
 
 
     public abstract ElcViewGroup create();

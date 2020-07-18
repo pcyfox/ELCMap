@@ -154,23 +154,7 @@ public class ElcLinkViewLayout extends FrameLayout implements DrawMarkView.DragE
 
                 @Override
                 public void onOkClick(ElcViewGroup view) {
-                    int w = getWidth();
-                    int h = getHeight();
 
-                    if (view.getLeft() < margin) {
-                        view.layout(margin, view.getTop(), view.getWidth(), view.getBottom());
-                    }
-
-                    if (view.getTop() < margin) {
-                        view.layout(view.getLeft(), margin, view.getRight(), view.getHeight());
-                    }
-                    if (w - view.getRight() < margin) {
-                        view.layout(w - view.getWidth(), view.getTop(), w - margin, view.getBottom());
-                    }
-
-                    if (h - view.getBottom() < margin) {
-                        view.layout(w - view.getWidth(), h - view.getHeight(), view.getRight(), h - margin);
-                    }
                 }
             });
 
@@ -281,6 +265,7 @@ public class ElcLinkViewLayout extends FrameLayout implements DrawMarkView.DragE
     @Override
     public void onViewAdded(View child) {
         super.onViewAdded(child);
+
         addElcView(child);
     }
 

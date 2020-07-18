@@ -10,6 +10,7 @@ import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import com.pcyfox.lib_elc.widget.ElcViewGroup
 import com.pcyfox.elc.R
+import com.pcyfox.lib_elc.uitls.Utils
 import com.pcyfox.lib_elc.widget.Anchor
 
 
@@ -41,10 +42,13 @@ class ELCFragment(contentLayoutId: Int = R.layout.elc_fragment) : Fragment(conte
                             val lp = ViewGroup.MarginLayoutParams(v.layoutParams)
                             val rect = Rect()
                             v.getGlobalVisibleRect(rect)
-                            lp.marginStart = 0
-                            lp.topMargin = 0
+                            lp.marginStart = Utils.dip2px(25f).toInt()
+                            lp.topMargin = Utils.dip2px(25f).toInt()
                             newElcView?.layoutParams = lp
+
                             elc_link_view?.addView(newElcView, 0)
+
+
                             newElcView?.dispatchGenericMotionEvent(event)
                         }
                     }

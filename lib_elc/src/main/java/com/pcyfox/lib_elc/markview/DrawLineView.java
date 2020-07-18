@@ -184,24 +184,37 @@ public class DrawLineView extends View {
         Line line = new Line(new Point(startX, startY), new Point(endX, endY));
         line.setDeleteBtn(deleteLineBtn);
         //如果起点与终点的的X或Y坐标不是近似在条线上
-        Log.d(TAG, "createLine() called   startPointTag:" + startPointTag);
-        Log.d(TAG, "createLine() called   endPointTag:" + endPointTag);
+        //  Log.d(TAG, "createLine() called   startPointTag:" + startPointTag);
+        //  Log.d(TAG, "createLine() called   endPointTag:" + endPointTag);
         if (startPointRect == null) {
             return line;
         }
 
-
         if (Math.abs(startY - endY) < 4) {//在一条横线上
+            //  Log.d(TAG, "createLine() called   case:01");
+            if (!startPointTag.equals(endPointTag) && startPointTag.equals("R") && startX < endX) {
+                return line;
+            }
+
+            if (!startPointTag.equals(endPointTag) && startPointTag.equals("L") && startX > endX) {
+                return line;
+            }
+
             Point midPoint1 = new Point();
             Point midPoint2 = new Point();
-            midPoint1.set(startX, endY + endPointRect.bottom - endPointRect.top);
-            midPoint2.set(endX, endY + endPointRect.bottom - endPointRect.top);
+            int h = endPointRect.bottom - endPointRect.top;
+            if (endY + h > getHeight()) {
+                h = -h;
+            }
+            midPoint1.set(startX, endY + h);
+            midPoint2.set(endX, endY + h);
             line.addMidPoint(midPoint1);
             line.addMidPoint(midPoint2);
             return line;
 
         }
         if (Math.abs(startX - endX) < 4) {//在一条竖线上
+            // Log.d(TAG, "createLine() called   case:01");
             return line;
         }
 
@@ -213,9 +226,8 @@ public class DrawLineView extends View {
             float marginY = h / 2 + h / 4;
             float marginX = 0;
 
-            Log.d(TAG, "createLine() called   endPointTag.equals(startPointTag):" + false);
             if (startPointTag.equals("L")) {
-                Log.d(TAG, "createLine() called   case:" + 11);
+                //   Log.d(TAG, "createLine() called   case:" + 11);
                 if (startX > endX) {
                     if (hp < marginX) {
                         marginX = -hp;
@@ -227,6 +239,7 @@ public class DrawLineView extends View {
                     }
                     return line;
                 }
+
                 marginX = -marginX;
                 Point midPoint1 = new Point(startX + marginX, startY);
                 line.addMidPoint(midPoint1);
@@ -234,8 +247,9 @@ public class DrawLineView extends View {
                 line.addMidPoint(midPoint2);
                 Point midPoint3 = new Point(endX, endY - marginY);
                 line.addMidPoint(midPoint3);
+
             } else {
-                Log.d(TAG, "createLine() called   case:" + 12);
+                // Log.d(TAG, "createLine() called   case:" + 12);
                 if (startX < endX) {
                     if (hp < marginX) {
                         marginX = hp;
@@ -256,21 +270,58 @@ public class DrawLineView extends View {
             }
             return line;
         } else {
-            Log.d(TAG, "createLine() called   endPointTag.equals(startPointTag):" + true);
-            boolean isPassRect = isPassRect(startX, startY, endX, endY, endPointRect);
-            Log.d(TAG, "createLine() isPassRect() isPassRect:" + isPassRect);
-            Point midPoint1 = new Point();
-            Point midPoint2 = new Point();
-            midPoint1.set(startX, endY + endPointRect.bottom - endPointRect.top);
-            midPoint2.set(endX, endY + endPointRect.bottom - endPointRect.top);
-            line.addMidPoint(midPoint1);
-            line.addMidPoint(midPoint2);
+            if (startPointTag.equals("R")) {
+                if (startY > endY) {
+                    if (startX < endX) {
+                        // Log.d(TAG, "createLine() called   case:" + 2112);
+                        Point midPoint1 = new Point(Math.max(endX, startX), Math.max(startY, endY));
+                        line.addMidPoint(midPoint1);
+                    } else {
+                        //  Log.d(TAG, "createLine() called   case:" + 2112);
+                        Point midPoint1 = new Point(Math.max(endX, startX), Math.min(startY, endY));
+                        line.addMidPoint(midPoint1);
+                    }
+                } else {
+                    if (startX < endX) {
+                        // Log.d(TAG, "createLine() called   case:" + 2121);
+                        Point midPoint1 = new Point(Math.max(endX, startX), Math.min(startY, endY));
+                        line.addMidPoint(midPoint1);
+                    } else {
+                        //  Log.d(TAG, "createLine() called   case:" + 2122);
+                        Point midPoint1 = new Point(Math.max(endX, startX), Math.max(startY, endY));
+                        line.addMidPoint(midPoint1);
+                    }
+                }
+
+            } else {
+                if (startY > endY) {
+                    if (startX < endX) {
+                        //   Log.d(TAG, "createLine() called   case:" + 2211);
+                        Point midPoint1 = new Point(Math.min(endX, startX), Math.min(startY, endY));
+                        line.addMidPoint(midPoint1);
+                    } else {
+                        //  Log.d(TAG, "createLine() called   case:" + 2212);
+                        Point midPoint1 = new Point(Math.min(endX, startX), Math.max(startY, endY));
+                        line.addMidPoint(midPoint1);
+                    }
+                } else {
+                    if (startX > endX) {
+                        // Log.d(TAG, "createLine() called   case:" + 22121);
+                        Point midPoint1 = new Point(Math.min(endX, startX), Math.min(startY, endY));
+                        line.addMidPoint(midPoint1);
+                    } else {
+                        //  Log.d(TAG, "createLine() called   case:" + 22122);
+                        Point midPoint1 = new Point(Math.min(endX, startX), Math.max(startY, endY));
+                        line.addMidPoint(midPoint1);
+                    }
+                }
+            }
         }
         return line;
     }
 
     private boolean isPassRect(float startX, float startY, float endX, float endY, Rect rect) {
-        Log.d(TAG, "isPassRect() called with: startX = [" + startX + "], startY = [" + startY + "], endX = [" + endX + "], endY = [" + endY + "], rect = [" + rect + "]");
+        // Log.d(TAG, "isPassRect() called with: startX = [" + startX + "], startY = [" + startY + "], endX = [" + endX + "], endY = [" + endY + "], rect = [" + rect + "]");
         return Utils.isLineIntersectRectangle(startX, startY, endX, endY, rect.left, rect.top, rect.right, rect.bottom);
         // return Utils.isStraightLineIntersectRectangle(new android.graphics.Point((int) startX, (int) startY), new android.graphics.Point((int) endX, (int) endY), rect);
     }

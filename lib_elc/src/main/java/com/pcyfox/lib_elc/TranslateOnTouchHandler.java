@@ -5,10 +5,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.pcyfox.lib_elc.uitls.Utils;
+
 public class TranslateOnTouchHandler {
     private float rawX;
     private float rawY;
-
+    private int margin = 0;
     private Rect startRect;
 
     public boolean translateOnTouch(View view, MotionEvent event) {
@@ -17,26 +19,25 @@ public class TranslateOnTouchHandler {
         }
         int w = view.getWidth();
         int h = view.getHeight();
-
-        int pw = ((ViewGroup) view.getParent()).getWidth();
-        int ph = ((ViewGroup) view.getParent()).getHeight();
+        ViewGroup parent = ((ViewGroup) view.getParent());
+        int pw = parent.getWidth();
+        int ph = parent.getHeight();
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                //按下的
                 startRect = new Rect(view.getLeft(), view.getTop(), view.getRight(), view.getBottom());
                 rawX = event.getRawX();
                 rawY = event.getRawY();
                 onTranslateStart(view, rawX, rawY);
                 break;
             case MotionEvent.ACTION_MOVE:
-                //移动的事件
+
                 float newX = event.getRawX();
                 float newY = event.getRawY();
                 float dX = newX - rawX;
                 float dY = newY - rawY;
                 onTranslate(view, dX, dY);
-                //移动的时候原控件的坐标
+
                 int l = view.getLeft();
                 int t = view.getTop();
                 //新控件的坐标
@@ -46,7 +47,7 @@ public class TranslateOnTouchHandler {
                 int r = l + view.getWidth();
                 int b = t + view.getHeight();
 
-                if (l + w <= pw && b <= ph && l > 0 && t > 0) {
+                if (l + w <= pw - margin && b <= ph - margin && l > margin && t > margin) {
                     if (Math.abs(t - b) >= view.getHeight() && Math.abs(r - l) >= view.getWidth()) {
                         view.layout(l, t, r, b);
                     }
@@ -64,6 +65,7 @@ public class TranslateOnTouchHandler {
     }
 
 
+
     public void onTranslateStart(View view, float dx, float dy) {
     }
 
@@ -73,5 +75,7 @@ public class TranslateOnTouchHandler {
     public void onTranslateOver(View view, Rect startRect) {
     }
 
-
+    public void setMargin(int margin) {
+        this.margin = margin;
+    }
 }
