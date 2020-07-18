@@ -25,23 +25,24 @@ import static com.pcyfox.lib_elc.uitls.Utils.ALIGN_TYPE_LEFT;
 /**
  * 电路连线
  */
-public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventInterceptor {
+public class ElcLinkViewLayout extends FrameLayout implements DrawMarkView.DragEventInterceptor {
     private static final String TAG = "ElcLinkView";
     private DrawLineView markView;
     private List<ElcViewGroup> elcViewGroups;
     private Anchor headAnchor = null;
     private ElcViewGroup currentElcViewGroup;
     private Rect rect = new Rect();
+    private static final int margin = (int) Utils.dip2px(74);
 
-    public ElcLinkView(Context context) {
+    public ElcLinkViewLayout(Context context) {
         super(context);
     }
 
-    public ElcLinkView(Context context, AttributeSet attrs) {
+    public ElcLinkViewLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public ElcLinkView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ElcLinkViewLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
@@ -141,13 +142,34 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
         if (child instanceof ElcViewGroup) {
             final ElcViewGroup elcViewGroup = (ElcViewGroup) child;
 
-            elcViewGroup.setOnDeleteListener(new ElcViewGroup.OnDeleteListener() {
+            elcViewGroup.setOnDeleteListener(new ElcViewGroup.OnButtonClickListener() {
                 @Override
-                public void onDelete(ElcViewGroup elcViewGroup) {
+                public void onDeleteClick(ElcViewGroup elcViewGroup) {
                     Log.e(TAG, "onDelete() called with: elcViewGroup = [" + elcViewGroup + "]");
                     List<Anchor> anchors = elcViewGroup.getAnchors();
                     for (Anchor anchor : anchors) {
                         markView.deleteLineByPoint(anchor.getCentreX() - rect.left, anchor.getCentreY() - rect.top);
+                    }
+                }
+
+                @Override
+                public void onOkClick(ElcViewGroup view) {
+                    int w = getWidth();
+                    int h = getHeight();
+
+                    if (view.getLeft() < margin) {
+                        view.layout(margin, view.getTop(), view.getWidth(), view.getBottom());
+                    }
+
+                    if (view.getTop() < margin) {
+                        view.layout(view.getLeft(), margin, view.getRight(), view.getHeight());
+                    }
+                    if (w - view.getRight() < margin) {
+                        view.layout(w - view.getWidth(), view.getTop(), w - margin, view.getBottom());
+                    }
+
+                    if (h - view.getBottom() < margin) {
+                        view.layout(w - view.getWidth(), h - view.getHeight(), view.getRight(), h - margin);
                     }
                 }
             });
@@ -165,7 +187,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
 
                 @Override
                 public void onTranslateOver(ElcViewGroup view, Rect startRect) {
-                    elcViewGroup.setBackgroundResource(R.drawable.elc_shape_evg_bg);
+                    view.setBackgroundResource(R.drawable.elc_shape_evg_bg);
                     boolean ret = checkOverlap(view);
                     Log.d(TAG, "checkOverlap() called with: foundOverlappedView = [" + ret + "]");
                     if (ret) {
@@ -188,7 +210,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
         Point[] pointArray = {new Point(), new Point(), new Point(), new Point(), new Point(), new Point(), new Point()};
         Rect rect = new Rect();
         view.getGlobalVisibleRect(rect);
-        //目前设计一条线最多由留个点构成
+        //目前设计一条线最多由6个点构成
         pointArray[0].set(rect.left, rect.top);
         pointArray[1].set(rect.left, rect.bottom);
         pointArray[2].set(rect.right, rect.top);
@@ -297,17 +319,19 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                 }
 
                 if (headAnchor != null) {
+                    markView.setNeedFindTouchLine(false);
                     float anchorCentreX = headAnchor.getCentreX() - rect.left;
                     float anchorCentreY = headAnchor.getCentreY() - rect.top;
                     event.setLocation(anchorCentreX, anchorCentreY);
                     markView.setCanStartToDraw(true);
                     markView.setStartPointInRect(getElcViewGroupInnerRect(currentElcViewGroup));
 
-                    markView.setStartXY(anchorCentreX, anchorCentreY,""+headAnchor.getTag());
+                    markView.setStartXY(anchorCentreX, anchorCentreY, "" + headAnchor.getTag());
 
                     markView.dispatchTouchEvent(event);
                     headAnchor.dispatchTouchEvent(event);
                 } else {
+                    markView.setNeedFindTouchLine(true);
                     markView.setCanStartToDraw(false);
                     if (isHasSelectedLine) {
                         markView.setCanStartToDraw(true);
@@ -353,7 +377,7 @@ public class ElcLinkView extends FrameLayout implements DrawMarkView.DragEventIn
                     } else {
                         headAnchor.addNextAnchor(nextAnchor);
                         markView.setCanStartToDraw(true);
-                        markView.setEndXY(nextAnchor.getCentreX() - rect.left, nextAnchor.getCentreY() - rect.top,""+nextAnchor.getTag());
+                        markView.setEndXY(nextAnchor.getCentreX() - rect.left, nextAnchor.getCentreY() - rect.top, "" + nextAnchor.getTag());
                         markView.dispatchTouchEvent(event);
                     }
                 }

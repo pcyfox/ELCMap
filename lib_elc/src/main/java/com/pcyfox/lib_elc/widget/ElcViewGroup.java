@@ -28,7 +28,7 @@ public abstract class ElcViewGroup extends FrameLayout {
     public static final int STATE_EDITABLE = 2;//仅可删除以及切换至STATE_NORMAL 不可拖动
     public static final int STATE_BASE = 3;//什么也不能干
     public static final int STATE_ERROR = 4;
-    private OnDeleteListener onDeleteListener;
+    private OnButtonClickListener onDeleteListener;
     private static final String TAG = "ElcViewGroup";
     private TranslateOnTouchHandler translateOnTouchHandler;
     private List<Anchor> anchors = new ArrayList<>();
@@ -107,7 +107,7 @@ public abstract class ElcViewGroup extends FrameLayout {
             @Override
             public void onClick(View v) {
                 if (onDeleteListener != null) {
-                    onDeleteListener.onDelete(ElcViewGroup.this);
+                    onDeleteListener.onDeleteClick(ElcViewGroup.this);
                 }
                 ViewGroup parent = (ViewGroup) getParent();
                 parent.removeView(ElcViewGroup.this);
@@ -117,6 +117,9 @@ public abstract class ElcViewGroup extends FrameLayout {
         okBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (onDeleteListener != null) {
+                    onDeleteListener.onOkClick(ElcViewGroup.this);
+                }
                 setState(STATE_NORMAL);
             }
         });
@@ -165,7 +168,6 @@ public abstract class ElcViewGroup extends FrameLayout {
                 break;
         }
 
-       // invalidate();
     }
 
 
@@ -194,11 +196,11 @@ public abstract class ElcViewGroup extends FrameLayout {
         this.name = name;
     }
 
-    public OnDeleteListener getOnDeleteListener() {
+    public OnButtonClickListener getOnDeleteListener() {
         return onDeleteListener;
     }
 
-    public void setOnDeleteListener(OnDeleteListener onDeleteListener) {
+    public void setOnDeleteListener(OnButtonClickListener onDeleteListener) {
         this.onDeleteListener = onDeleteListener;
     }
 
@@ -287,9 +289,12 @@ public abstract class ElcViewGroup extends FrameLayout {
         void onTranslateOver(ElcViewGroup view, Rect startRect);
     }
 
-    public interface OnDeleteListener {
-        void onDelete(ElcViewGroup elcViewGroup);
+    public interface OnButtonClickListener {
+        void onDeleteClick(ElcViewGroup elcViewGroup);
+        void onOkClick(ElcViewGroup elcViewGroup);
     }
+
+
 
     public abstract ElcViewGroup create();
 

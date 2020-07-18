@@ -41,6 +41,7 @@ public class DrawLineView extends View {
     private Bitmap deleteLineBtn;
     private Rect startPointRect;
     private Rect endPointRect;
+    private boolean isNeedFindTouchLine = true;
 
     public DrawLineView(Context context) {
         this(context, null);
@@ -134,6 +135,7 @@ public class DrawLineView extends View {
         }
         clearSelectedLine();
         selectedLine = findTouchedLine(x, y);
+
         mPath.reset();
         mPath.moveTo(x, y);
         mX = x;
@@ -182,84 +184,87 @@ public class DrawLineView extends View {
         Line line = new Line(new Point(startX, startY), new Point(endX, endY));
         line.setDeleteBtn(deleteLineBtn);
         //如果起点与终点的的X或Y坐标不是近似在条线上
-        if (Math.abs(startX - endX) > 4 || Math.abs(startY - endY) > 4) {
-            Log.d(TAG, "createLine() called   startPointTag:" + startPointTag);
-            Log.d(TAG, "createLine() called   endPointTag:" + endPointTag);
-            if (startPointRect == null) {
-                return line;
-            }
-            if (!endPointTag.equals(startPointTag)) {
-                float h = endPointRect.bottom - endPointRect.top;
-                float w = endPointRect.right - endPointRect.left;
-                // float vp = Math.abs(startY - endY);
-                float hp = Math.abs(endX - startX);
+        Log.d(TAG, "createLine() called   startPointTag:" + startPointTag);
+        Log.d(TAG, "createLine() called   endPointTag:" + endPointTag);
+        if (startPointRect == null) {
+            return line;
+        }
 
-                float marginY = h * 1.2f;
-                float marginX = w * 1.2f;
 
-                Log.d(TAG, "createLine() called   endPointTag.equals(startPointTag):" + false);
-                if (startPointTag.equals("L")) {
-                    if (startX > endX) {
-                        if (hp < marginX) {
-                            marginX = -hp;
-                            Point midPoint1 = new Point(startX + marginX, startY);
-                            line.addMidPoint(midPoint1);
-                        }else {
-                            Point midPoint1 = new Point(startX , endY);
-                            line.addMidPoint(midPoint1);
-                        }
-                        return line;
+        if (Math.abs(startY - endY) < 4) {//在一条横线上
+            Point midPoint1 = new Point();
+            Point midPoint2 = new Point();
+            midPoint1.set(startX, endY + endPointRect.bottom - endPointRect.top);
+            midPoint2.set(endX, endY + endPointRect.bottom - endPointRect.top);
+            line.addMidPoint(midPoint1);
+            line.addMidPoint(midPoint2);
+            return line;
+
+        }
+        if (Math.abs(startX - endX) < 4) {//在一条竖线上
+            return line;
+        }
+
+        if (!endPointTag.equals(startPointTag)) {
+            float h = endPointRect.bottom - endPointRect.top;
+            float w = endPointRect.right - endPointRect.left;
+            // float vp = Math.abs(startY - endY);
+            float hp = Math.abs(endX - startX);
+            float marginY = h / 2 + h / 4;
+            float marginX = 0;
+
+            Log.d(TAG, "createLine() called   endPointTag.equals(startPointTag):" + false);
+            if (startPointTag.equals("L")) {
+                Log.d(TAG, "createLine() called   case:" + 11);
+                if (startX > endX) {
+                    if (hp < marginX) {
+                        marginX = -hp;
+                        Point midPoint1 = new Point(startX + marginX, startY);
+                        line.addMidPoint(midPoint1);
+                    } else {
+                        Point midPoint1 = new Point(startX, endY);
+                        line.addMidPoint(midPoint1);
                     }
-
-                    marginX = -marginX;
-                    Point midPoint1 = new Point(startX + marginX, startY);
-                    line.addMidPoint(midPoint1);
-                    Point midPoint2 = new Point(startX + marginX, endY - marginY);
-                    line.addMidPoint(midPoint2);
-                    Point midPoint3 = new Point(endX, endY - marginY);
-                    line.addMidPoint(midPoint3);
-
-                } else {
-                    if (startX < endX) {
-                        if (hp < marginX) {
-                            marginX = hp;
-                            Point midPoint1 = new Point(startX + marginX, startY);
-                            line.addMidPoint(midPoint1);
-                        } else {
-                            Point midPoint1 = new Point(endX, startY);
-                            line.addMidPoint(midPoint1);
-                        }
-                        return line;
-                    }
-
-
-                    Point midPoint1 = new Point(startX + marginX, startY);
-                    line.addMidPoint(midPoint1);
-                    Point midPoint2 = new Point(startX + marginX, endY - marginY);
-                    line.addMidPoint(midPoint2);
-                    Point midPoint3 = new Point(endX, endY - marginY);
-                    line.addMidPoint(midPoint3);
-
+                    return line;
                 }
-                return line;
+                marginX = -marginX;
+                Point midPoint1 = new Point(startX + marginX, startY);
+                line.addMidPoint(midPoint1);
+                Point midPoint2 = new Point(startX + marginX, endY - marginY);
+                line.addMidPoint(midPoint2);
+                Point midPoint3 = new Point(endX, endY - marginY);
+                line.addMidPoint(midPoint3);
             } else {
-                Log.d(TAG, "createLine() called   endPointTag.equals(startPointTag):" + true);
-                Point midPoint = new Point();
-                if (startPointTag.equals("R")) {
-                    if (startX > endX) {
-                        midPoint.set(startX, endY);
+                Log.d(TAG, "createLine() called   case:" + 12);
+                if (startX < endX) {
+                    if (hp < marginX) {
+                        marginX = hp;
+                        Point midPoint1 = new Point(startX + marginX, startY);
+                        line.addMidPoint(midPoint1);
                     } else {
-                        midPoint.set(endX, startY);
+                        Point midPoint1 = new Point(endX, startY);
+                        line.addMidPoint(midPoint1);
                     }
-                } else {
-                    if (startX > endX) {
-                        midPoint.set(endX, startY);
-                    } else {
-                        midPoint.set(startX, endY);
-                    }
+                    return line;
                 }
-                line.addMidPoint(midPoint);
+                Point midPoint1 = new Point(startX + marginX, startY);
+                line.addMidPoint(midPoint1);
+                Point midPoint2 = new Point(startX + marginX, endY - marginY);
+                line.addMidPoint(midPoint2);
+                Point midPoint3 = new Point(endX, endY - marginY);
+                line.addMidPoint(midPoint3);
             }
+            return line;
+        } else {
+            Log.d(TAG, "createLine() called   endPointTag.equals(startPointTag):" + true);
+            boolean isPassRect = isPassRect(startX, startY, endX, endY, endPointRect);
+            Log.d(TAG, "createLine() isPassRect() isPassRect:" + isPassRect);
+            Point midPoint1 = new Point();
+            Point midPoint2 = new Point();
+            midPoint1.set(startX, endY + endPointRect.bottom - endPointRect.top);
+            midPoint2.set(endX, endY + endPointRect.bottom - endPointRect.top);
+            line.addMidPoint(midPoint1);
+            line.addMidPoint(midPoint2);
         }
         return line;
     }
@@ -286,6 +291,7 @@ public class DrawLineView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        canvas.drawColor(Color.parseColor("#1D000000"));
         canvas.drawPath(mPath, dashPaint);
         for (Line line : lines) {
             line.draw(canvas);
@@ -375,6 +381,9 @@ public class DrawLineView extends View {
      * @return
      */
     public Line findTouchedLine(float x, float y) {
+        if (!isNeedFindTouchLine) {
+            return null;
+        }
         Line foundLine = null;
         for (Line line : lines) {
             boolean selected = line.selectedLine(x, y, 12);
@@ -412,6 +421,9 @@ public class DrawLineView extends View {
         this.onDeleteLineListener = onDeleteLineListener;
     }
 
+    public void setNeedFindTouchLine(boolean needFindTouchLine) {
+        isNeedFindTouchLine = needFindTouchLine;
+    }
 
     public interface OnDeleteLineListener {
         boolean onDelete(Line line);

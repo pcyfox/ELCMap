@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.pcyfox.lib_elc.widget.ElcLinkView
+        <com.pcyfox.lib_elc.widget.ElcLinkViewLayout
             android:id="@+id/elc_link_view"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -19,7 +19,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-        </com.pcyfox.lib_elc.widget.ElcLinkView>
+        </com.pcyfox.lib_elc.widget.ElcLinkViewLayout>
 
 
         <ScrollView
