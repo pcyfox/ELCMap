@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.util.SparseLongArray;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -38,6 +39,7 @@ public abstract class ElcViewGroup extends FrameLayout {
     private int state = STATE_BASE;
     private boolean isLongClick = false;
     private MotionEvent currentEvent;
+    private OnLongClickListener longClickListener;
 
     public List<Anchor> getAnchors() {
         return anchors;
@@ -204,26 +206,18 @@ public abstract class ElcViewGroup extends FrameLayout {
         this.onDeleteListener = onDeleteListener;
     }
 
+    public void setLongClickListener(OnLongClickListener longClickListener) {
+        this.longClickListener = longClickListener;
+    }
+
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
         currentEvent = event;
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                isLongClick = false;
-                postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (event.getActionMasked() == MotionEvent.ACTION_UP) {
-                            return;
-                        }
-                        isLongClick = Utils.isInView(currentEvent.getRawX(), currentEvent.getRawY(), ElcViewGroup.this, 0);
-                        checkState(event);
-                    }
-                }, 700);
+                startHandleLongClick(event);
                 break;
-
             case MotionEvent.ACTION_MOVE:
-
             case MotionEvent.ACTION_UP:
                 checkState(event);
                 break;
@@ -250,6 +244,20 @@ public abstract class ElcViewGroup extends FrameLayout {
         return true;
     }
 
+    private void startHandleLongClick(final MotionEvent event) {
+        isLongClick = false;
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (event.getActionMasked() == MotionEvent.ACTION_UP) {
+                    return;
+                }
+                isLongClick = Utils.isInView(currentEvent.getRawX(), currentEvent.getRawY(), ElcViewGroup.this, 0);
+                checkState(event);
+            }
+        }, 700);
+    }
+
 
     private Boolean checkState(MotionEvent event) {
         switch (state) {
@@ -271,6 +279,7 @@ public abstract class ElcViewGroup extends FrameLayout {
 
 
     private void performLongClick(MotionEvent event) {
+        if (longClickListener != null && longClickListener.onLongClick(this, event)) return;
         setState(STATE_EDITABLE);
     }
 
@@ -293,6 +302,10 @@ public abstract class ElcViewGroup extends FrameLayout {
         void onDeleteClick(ElcViewGroup elcViewGroup);
 
         void onOkClick(ElcViewGroup elcViewGroup);
+    }
+
+    public interface OnLongClickListener {
+        boolean onLongClick(ElcViewGroup elcViewGroup, MotionEvent event);
     }
 
 

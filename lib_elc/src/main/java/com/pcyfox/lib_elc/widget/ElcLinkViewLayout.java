@@ -16,6 +16,7 @@ import com.pcyfox.lib_elc.markview.Point;
 import com.pcyfox.lib_elc.uitls.Utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -54,7 +55,6 @@ public class ElcLinkViewLayout extends FrameLayout implements DrawMarkView.DragE
             public boolean onDelete(Line line) {
                 //有线段被删除，清除对应的锚点
                 Anchor deleteAnchor = null;
-                boolean foundAnchor = false;
                 for (ElcViewGroup group : elcViewGroups) {
                     for (Anchor anchor : group.getAnchors()) {
                         //从线段头部找Anchor
@@ -68,13 +68,17 @@ public class ElcLinkViewLayout extends FrameLayout implements DrawMarkView.DragE
                                 }
                             }
                             if (deleteAnchor != null) {
-                                foundAnchor = true;
+
+                                if (isHasLinked(group)) {
+                                    group.setState(ElcViewGroup.STATE_LAYOUT);
+                                }
                                 boolean ret = anchor.getNextAnchors().remove(deleteAnchor);
                                 if (ret) {
                                     Log.e(TAG, "onDelete() from line head Anchor called with: delete headAnchor = [" + anchor + "]" + " deleteAnchor = [" + deleteAnchor + "]");
                                 }
                             }
                         }
+
                         //从线段尾部找Anchor
                         if (Utils.isInView(end.x + rect.left, end.y + rect.top, anchor, anchor.getTouchRadius())) {
                             for (Anchor nAnchor : anchor.getNextAnchors()) {
@@ -83,7 +87,10 @@ public class ElcLinkViewLayout extends FrameLayout implements DrawMarkView.DragE
                                 }
                             }
                             if (deleteAnchor != null) {
-                                foundAnchor = true;
+                                changeState(group);
+                                if (isHasLinked(group)) {
+                                    group.setState(ElcViewGroup.STATE_LAYOUT);
+                                }
                                 boolean ret = anchor.getNextAnchors().remove(deleteAnchor);
                                 if (ret) {
                                     Log.e(TAG, "onDelete() form line trail Anchor called with: delete headAnchor = [" + anchor + "]" + " delete deleteAnchor = [" + deleteAnchor + "]");
@@ -91,11 +98,8 @@ public class ElcLinkViewLayout extends FrameLayout implements DrawMarkView.DragE
                             }
                         }
                     }
+                }
 
-                }
-                if (!foundAnchor) {
-                    //throw new IllegalStateException("on delete line:" + line + "  but not found any Anchor");
-                }
                 return false;
             }
         });
@@ -141,6 +145,13 @@ public class ElcLinkViewLayout extends FrameLayout implements DrawMarkView.DragE
     private void addElcView(View child) {
         if (child instanceof ElcViewGroup) {
             final ElcViewGroup elcViewGroup = (ElcViewGroup) child;
+            elcViewGroup.setLongClickListener(new ElcViewGroup.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(ElcViewGroup elcViewGroup, MotionEvent event) {
+                    changeState(elcViewGroup);
+                    return true;
+                }
+            });
 
             elcViewGroup.setOnDeleteListener(new ElcViewGroup.OnButtonClickListener() {
                 @Override
@@ -187,6 +198,40 @@ public class ElcLinkViewLayout extends FrameLayout implements DrawMarkView.DragE
             invalidate();
             child.invalidate();
         }
+    }
+
+    private void changeState(ElcViewGroup elcViewGroup) {
+        boolean hasLinked = isHasLinked(elcViewGroup);
+        if (hasLinked) {
+            elcViewGroup.setState(ElcViewGroup.STATE_EDITABLE);
+        } else {
+            elcViewGroup.setState(ElcViewGroup.STATE_LAYOUT);
+        }
+    }
+
+    private boolean isHasLinked(ElcViewGroup elcViewGroup) {
+        boolean hasLinked = false;
+        for (Anchor anchor : elcViewGroup.getAnchors()) {
+            if (anchor.getNextAnchors().size() > 0) {
+                return true;
+            }
+        }
+
+        for (ElcViewGroup viewGroup : elcViewGroups) {
+            if (viewGroup == elcViewGroup) {
+                continue;
+            }
+
+            for (Anchor anchor : viewGroup.getAnchors()) {
+                hasLinked = !Collections.disjoint(anchor.getNextAnchors(), elcViewGroup.getAnchors());
+                if (hasLinked) {
+                    return true;
+                }
+            }
+
+        }
+        Log.d(TAG, "isHasLinked() called ret: hasLinked = [" + hasLinked + "]");
+        return hasLinked;
     }
 
     private boolean checkOverlap(View view) {
@@ -323,7 +368,7 @@ public class ElcLinkViewLayout extends FrameLayout implements DrawMarkView.DragE
                         markView.dispatchTouchEvent(event);
                     }
                     if (currentElcViewGroup != null) {
-                      //  currentElcViewGroup.dispatchTouchEvent(event);
+                        //  currentElcViewGroup.dispatchTouchEvent(event);
                     }
 
                 }
@@ -346,7 +391,7 @@ public class ElcLinkViewLayout extends FrameLayout implements DrawMarkView.DragE
                 }
                 if (currentElcViewGroup != null && headAnchor == null) {
                     isIntercept = false;
-                   // currentElcViewGroup.dispatchTouchEvent(event);
+                    // currentElcViewGroup.dispatchTouchEvent(event);
                 }
                 if (headAnchor == null) {
                     isIntercept = false;
