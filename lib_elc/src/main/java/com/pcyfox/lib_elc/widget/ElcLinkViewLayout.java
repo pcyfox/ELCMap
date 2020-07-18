@@ -49,7 +49,6 @@ public class ElcLinkViewLayout extends FrameLayout implements DrawMarkView.DragE
 
     {
         markView = new DrawLineView(getContext());
-
         markView.setOnDeleteLineListener(new DrawLineView.OnDeleteLineListener() {
             @Override
             public boolean onDelete(Line line) {
@@ -100,11 +99,9 @@ public class ElcLinkViewLayout extends FrameLayout implements DrawMarkView.DragE
                         }
                     }
                 }
-
                 return false;
             }
         });
-        setClickable(true);
         setClickable(true);
     }
 
@@ -210,29 +207,26 @@ public class ElcLinkViewLayout extends FrameLayout implements DrawMarkView.DragE
         }
     }
 
+    //判断elcViewGroup上是否有连线
     private boolean isHasLinked(ElcViewGroup elcViewGroup) {
-        boolean hasLinked = false;
         for (Anchor anchor : elcViewGroup.getAnchors()) {
             if (anchor.getNextAnchors().size() > 0) {
                 return true;
             }
         }
-
         for (ElcViewGroup viewGroup : elcViewGroups) {
             if (viewGroup == elcViewGroup) {
                 continue;
             }
-
             for (Anchor anchor : viewGroup.getAnchors()) {
-                hasLinked = !Collections.disjoint(anchor.getNextAnchors(), elcViewGroup.getAnchors());
+                boolean hasLinked = !Collections.disjoint(anchor.getNextAnchors(), elcViewGroup.getAnchors());
                 if (hasLinked) {
                     return true;
                 }
             }
-
         }
-        Log.d(TAG, "isHasLinked() called ret: hasLinked = [" + hasLinked + "]");
-        return hasLinked;
+        // Log.d(TAG, "isHasLinked() called ret: hasLinked = [" + hasLinked + "]");
+        return false;
     }
 
     private boolean checkOverlap(View view) {
