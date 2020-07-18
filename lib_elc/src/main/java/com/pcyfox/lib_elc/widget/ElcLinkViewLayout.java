@@ -323,7 +323,7 @@ public class ElcLinkViewLayout extends FrameLayout implements DrawMarkView.DragE
                         markView.dispatchTouchEvent(event);
                     }
                     if (currentElcViewGroup != null) {
-                        currentElcViewGroup.dispatchTouchEvent(event);
+                      //  currentElcViewGroup.dispatchTouchEvent(event);
                     }
 
                 }
@@ -346,7 +346,7 @@ public class ElcLinkViewLayout extends FrameLayout implements DrawMarkView.DragE
                 }
                 if (currentElcViewGroup != null && headAnchor == null) {
                     isIntercept = false;
-                    currentElcViewGroup.dispatchTouchEvent(event);
+                   // currentElcViewGroup.dispatchTouchEvent(event);
                 }
                 if (headAnchor == null) {
                     isIntercept = false;

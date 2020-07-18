@@ -1,6 +1,7 @@
 package com.pcyfox.lib_elc;
 
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +13,7 @@ public class TranslateOnTouchHandler {
     private float rawY;
     private int margin = 0;
     private Rect startRect;
-
+    private static final String TAG = "TranslateOnTouchHandler";
     public boolean translateOnTouch(View view, MotionEvent event) {
         if (view == null || view.getParent() == null) {
             return false;
@@ -58,6 +59,7 @@ public class TranslateOnTouchHandler {
                 rawY = newY;
                 break;
             case MotionEvent.ACTION_UP:
+              //  Log.d(TAG, "translateOnTouch() called with: view = [" + view + "], event = [" + event + "]");
                 onTranslateOver(view, startRect);
                 break;
         }
