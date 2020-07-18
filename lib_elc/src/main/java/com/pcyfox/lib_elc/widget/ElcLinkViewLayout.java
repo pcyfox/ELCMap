@@ -68,13 +68,13 @@ public class ElcLinkViewLayout extends FrameLayout implements DrawMarkView.DragE
                                 }
                             }
                             if (deleteAnchor != null) {
-
-                                if (isHasLinked(group)) {
-                                    group.setState(ElcViewGroup.STATE_LAYOUT);
-                                }
                                 boolean ret = anchor.getNextAnchors().remove(deleteAnchor);
                                 if (ret) {
                                     Log.e(TAG, "onDelete() from line head Anchor called with: delete headAnchor = [" + anchor + "]" + " deleteAnchor = [" + deleteAnchor + "]");
+                                }
+
+                                if (!isHasLinked(group)) {
+                                    group.setState(ElcViewGroup.STATE_LAYOUT);
                                 }
                             }
                         }
@@ -88,12 +88,13 @@ public class ElcLinkViewLayout extends FrameLayout implements DrawMarkView.DragE
                             }
                             if (deleteAnchor != null) {
                                 changeState(group);
-                                if (isHasLinked(group)) {
-                                    group.setState(ElcViewGroup.STATE_LAYOUT);
-                                }
                                 boolean ret = anchor.getNextAnchors().remove(deleteAnchor);
                                 if (ret) {
                                     Log.e(TAG, "onDelete() form line trail Anchor called with: delete headAnchor = [" + anchor + "]" + " delete deleteAnchor = [" + deleteAnchor + "]");
+                                }
+
+                                if (!isHasLinked(group)) {
+                                    group.setState(ElcViewGroup.STATE_LAYOUT);
                                 }
                             }
                         }
